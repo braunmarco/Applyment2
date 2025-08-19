@@ -16,9 +16,19 @@
         <load-on-startup>1</load-on-startup>
     </servlet>
 
+    <servlet>
+        <servlet-name>Main</servlet-name>
+        <servlet-class>my.cvmanager.Main</servlet-class>
+    </servlet>
+
     <servlet-mapping>
         <servlet-name>FacesServlet</servlet-name>
         <url-pattern>*.xhtml</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>Main</servlet-name>
+        <url-pattern>/Main</url-pattern>
     </servlet-mapping>
 
     <welcome-file-list>
