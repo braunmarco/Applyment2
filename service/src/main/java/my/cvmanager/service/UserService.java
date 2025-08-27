@@ -41,7 +41,7 @@ public class UserService implements IUserService {
     /**
      * The user data provider instance for this class.
      */
-    private final UserDao userDataProvider = new UserDao();
+    private final UserDao dao = new UserDao();
 
     /**
      * Sets the entity manager instance for this class.
@@ -71,7 +71,7 @@ public class UserService implements IUserService {
         user.setEmail(email);
 
         try {
-            userDataProvider.persist(user, em); // persist the user
+            dao.persist(user, em); // persist the user
             logger.info("User has been registered successfully");
         } catch (Exception ex) {
             logger.severe("Error registering user: " + ex.getMessage());
@@ -89,11 +89,11 @@ public class UserService implements IUserService {
     @Transactional
     @Override
     public void unregister(Long userId) {
-        userDataProvider.find(userId, em).ifPresentOrElse(user -> {
+        dao.find(userId, em).ifPresentOrElse(user -> {
             if (isAdmin(user)) {
                 logger.info("User " + user.getUsername() + " cannot be unregistered.");
             } else {
-                userDataProvider.delete(user, em);
+                dao.delete(user, em);
                 logger.info("User has been unregistered successfully");
             }
         }, () -> logger.warning("User not found"));
@@ -110,10 +110,10 @@ public class UserService implements IUserService {
     @Override
     public User login(String username, String password) {
         try {
-            Optional<User> user = userDataProvider.findOne("username", username, em);
+            Optional<User> user = dao.findOne("username", username, em);
             if (user.isPresent() && user.get().getPassword().equals(password)) {
                 user.get().setLoggedIn(true); // mark user as logged-in.
-                return userDataProvider.update(user.get(), em); // update user
+                return dao.update(user.get(), em); // update user
             }
         } catch (Exception ex) {
             logger.severe("Error during login: " + ex.getMessage());
@@ -129,10 +129,10 @@ public class UserService implements IUserService {
     @Transactional
     @Override
     public void logout(Long userId) {
-        Optional<User> user = userDataProvider.find(userId, em);
+        Optional<User> user = dao.find(userId, em);
         if (user.isPresent()) {
             user.get().setLoggedIn(false);
-            userDataProvider.update(user.get(), em); // update user
+            dao.update(user.get(), em); // update user
         }
     }
 
@@ -146,7 +146,7 @@ public class UserService implements IUserService {
     @Transactional
     @Override
     public boolean validateCredentials(String username, String password) {
-        Optional<User> user = userDataProvider.findOne("username", username, em);
+        Optional<User> user = dao.findOne("username", username, em);
         return user.isPresent() && user.get().getPassword().equals(password);
     }
 
@@ -158,7 +158,7 @@ public class UserService implements IUserService {
     @Transactional
     @Override
     public void sendCredentials(String email) {
-        Optional<User> user = userDataProvider.findOne("email", email, em);
+        Optional<User> user = dao.findOne("email", email, em);
         if (user.isPresent()) {
             String credentials = "username: " + user.get().getUsername() + " password: " + user.get().getPassword();
             logger.info(credentials);
@@ -181,7 +181,7 @@ public class UserService implements IUserService {
         params.put("email", email);
 
         try {
-            Optional<User> user = userDataProvider.findOne(params, em);
+            Optional<User> user = dao.findOne(params, em);
             return user.orElse(null);
         } catch (Exception ex) {
             logger.severe("Error checking if user is registered: " + ex.getMessage());

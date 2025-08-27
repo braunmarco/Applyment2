@@ -4,16 +4,21 @@
       xmlns:p="http://primefaces.org/ui">
 <h:head>
     <title>Login</title>
+    <link rel="stylesheet" type="text/css" href="css/style.css"/>
 </h:head>
 <h:body>
-    <h:form>
-        <p:panel header="Login">
-            <p:messages autoUpdate="true"/>
-            <p:inputText id="username" value="#{userBean.username}" placeholder="Benutzername" required="true"/>
-            <p:password id="password" value="#{userBean.password}" placeholder="Passwort" required="true"/>
-            <p:commandButton value="Login" action="#{userBean.login}" update="@form"/>
-            <h:link outcome="register.xhtml" value="Noch kein Konto? Registrieren"/>
-        </p:panel>
-    </h:form>
+    <div class="container">
+        <h:form>
+            <p:panel header="Login" styleClass="login-panel">
+                <p:messages autoUpdate="true"/>
+                <p:inputText id="username" value="#{userBean.username}" placeholder="Benutzername" required="true"/>
+                <p:password id="password" value="#{userBean.password}" placeholder="Passwort" required="true"/>
+                <div class="button-container">
+                    <p:commandButton value="Login" action="#{userBean.login}" update="@form"/>
+                    <h:link outcome="register.xhtml" value="Noch kein Konto? Registrieren"/>
+                </div>
+            </p:panel>
+        </h:form>
+    </div>
 </h:body>
 </html>

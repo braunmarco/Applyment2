@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui">
+<h:head>
+    <title>Positionen verwalten</title>
+</h:head>
+<h:body>
+    <h:form>
+        <h1>Positionen verwalten</h1>
+
+        <p:panel header="Neue Position anlegen">
+            <h:outputLabel for="title" value="Titel:"/>
+            <p:inputText id="title" value="#{positionBean.title}"/>
+
+            <h:outputLabel for="company" value="Firma:"/>
+            <p:inputText id="company" value="#{positionBean.company}"/>
+
+            <h:outputLabel for="location" value="Ort:"/>
+            <p:inputText id="location" value="#{positionBean.location}"/>
+
+            <h:outputLabel for="startDate" value="Startdatum:"/>
+            <p:calendar id="startDate" value="#{positionBean.startDate}" pattern="dd.MM.yyyy" type="date"
+                        converter="localDateConverter"/>
+
+            <h:outputLabel for="endDate" value="Enddatum:"/>
+            <p:calendar id="endDate" value="#{positionBean.endDate}" pattern="dd.MM.yyyy" type="date"
+                        converter="localDateConverter"/>
+
+            <h:outputLabel for="description" value="Beschreibung:"/>
+            <p:inputTextarea id="description" value="#{positionBean.description}"/>
+
+            <p:commandButton value="Speichern" action="#{positionBean.save}" update="@form"/>
+        </p:panel>
+
+        <p:panel header="Alle Positionen">
+            <p:dataTable value="#{positionBean.positions}" var="pos" style="width:100%">
+                <p:column headerText="Titel">
+                    #{pos.title}
+                </p:column>
+                <p:column headerText="Firma">
+                    #{pos.company}
+                </p:column>
+                <p:column headerText="Ort">
+                    #{pos.location}
+                </p:column>
+                <p:column headerText="Startdatum">
+                    #{pos.startDate}
+                </p:column>
+                <p:column headerText="Enddatum">
+                    #{pos.endDate}
+                </p:column>
+                <p:column headerText="Beschreibung">
+                    #{pos.description}
+                </p:column>
+                <p:column>
+                    <p:commandButton value="Löschen" action="#{positionBean.delete(pos)}" update="@form"/>
+                </p:column>
+                <p:column>
+                    <p:commandButton value="Bearbeiten" action="#{positionBean.edit(pos)}" update="@form"/>
+                </p:column>
+            </p:dataTable>
+        </p:panel>
+
+        <h:link value="Zurück" outcome="home.xhtml"/>
+    </h:form>
+</h:body>
+</html>

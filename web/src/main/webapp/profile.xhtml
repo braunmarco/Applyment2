@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui">
+<h:head>
+    <title>Benutzerprofil</title>
+</h:head>
+<h:body>
+    <h:form>
+        <h1>Benutzerprofil</h1>
+
+        <p:panel header="Profil bearbeiten">
+            <h:outputLabel for="username" value="Benutzername:"/>
+            <p:inputText id="username" value="#{userBean.username}"/>
+
+            <h:outputLabel for="email" value="E-Mail:"/>
+            <p:inputText id="email" value="#{userBean.email}"/>
+
+            <h:outputLabel for="password" value="Passwort:"/>
+            <p:password id="password" value="#{userBean.password}"/>
+
+            <p:commandButton value="Speichern" action="#{userBean.register}" update="@form"/>
+        </p:panel>
+
+        <h:link value="Zurück" outcome="home.xhtml"/>
+    </h:form>
+</h:body>
+</html>
