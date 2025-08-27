@@ -6,35 +6,47 @@
     <title>Positionen verwalten</title>
 </h:head>
 <h:body>
-    <h:form>
+    <!-- Hauptformular -->
+    <h:form id="mainForm">
         <h1>Positionen verwalten</h1>
 
+        <!-- Eingabeformular für neue Position -->
         <p:panel header="Neue Position anlegen">
-            <h:outputLabel for="title" value="Titel:"/>
-            <p:inputText id="title" value="#{positionBean.title}"/>
+            <p:panelGrid columns="2">
+                <h:outputLabel for="title" value="Titel:"/>
+                <p:inputText id="title" value="#{positionBean.title}"/>
 
-            <h:outputLabel for="company" value="Firma:"/>
-            <p:inputText id="company" value="#{positionBean.company}"/>
+                <h:outputLabel for="company" value="Firma:"/>
+                <p:inputText id="company" value="#{positionBean.company}"/>
 
-            <h:outputLabel for="location" value="Ort:"/>
-            <p:inputText id="location" value="#{positionBean.location}"/>
+                <h:outputLabel for="location" value="Ort:"/>
+                <p:inputText id="location" value="#{positionBean.location}"/>
 
-            <h:outputLabel for="startDate" value="Startdatum:"/>
-            <p:calendar id="startDate" value="#{positionBean.startDate}" pattern="dd.MM.yyyy" type="date"
-                        converter="localDateConverter"/>
+                <h:outputLabel for="startDate" value="Startdatum:"/>
+                <p:calendar id="startDate" value="#{positionBean.startDate}"
+                            pattern="dd.MM.yyyy" type="date"
+                            converter="localDateConverter"/>
 
-            <h:outputLabel for="endDate" value="Enddatum:"/>
-            <p:calendar id="endDate" value="#{positionBean.endDate}" pattern="dd.MM.yyyy" type="date"
-                        converter="localDateConverter"/>
+                <h:outputLabel for="endDate" value="Enddatum:"/>
+                <p:calendar id="endDate" value="#{positionBean.endDate}"
+                            pattern="dd.MM.yyyy" type="date"
+                            converter="localDateConverter"/>
 
-            <h:outputLabel for="description" value="Beschreibung:"/>
-            <p:inputTextarea id="description" value="#{positionBean.description}"/>
-
-            <p:commandButton value="Speichern" action="#{positionBean.save}" update="@form"/>
+                <h:outputLabel for="description" value="Beschreibung:"/>
+                <p:inputTextarea id="description" value="#{positionBean.description}"/>
+            </p:panelGrid>
         </p:panel>
 
+        <!-- Buttons -->
+        <p:panel>
+            <p:commandButton value="Speichern" action="#{positionBean.save}" update=":mainForm:positionsTable"/>
+            <p:commandButton id="csvImportButton" value="CSV Import"
+                             onclick="PF('csvImportDialog').show(); return false;"/>
+        </p:panel>
+
+        <!-- Tabelle mit allen Positionen -->
         <p:panel header="Alle Positionen">
-            <p:dataTable value="#{positionBean.positions}" var="pos" style="width:100%">
+            <p:dataTable id="positionsTable" value="#{positionBean.positions}" var="pos" style="width:100%">
                 <p:column headerText="Titel">
                     #{pos.title}
                 </p:column>
@@ -54,7 +66,8 @@
                     #{pos.description}
                 </p:column>
                 <p:column>
-                    <p:commandButton value="Löschen" action="#{positionBean.delete(pos)}" update="@form"/>
+                    <p:commandButton value="Löschen" action="#{positionBean.delete(pos)}"
+                                     update=":mainForm:positionsTable"/>
                 </p:column>
                 <p:column>
                     <p:commandButton value="Bearbeiten" action="#{positionBean.edit(pos)}" update="@form"/>
@@ -64,5 +77,18 @@
 
         <h:link value="Zurück" outcome="home.xhtml"/>
     </h:form>
+
+    <!-- Dialog für CSV-Upload -->
+    <p:dialog header="CSV Import" widgetVar="csvImportDialog" modal="true" resizable="false">
+        <h:form id="csvForm" enctype="multipart/form-data">
+            <p:fileUpload id="csvFile" value="#{positionBean.csvFile}" mode="simple"/>
+
+            <p:commandButton value="OK" action="#{positionBean.csvImport}"
+                             update=":mainForm:positionsTable"
+                             oncomplete="PF('csvImportDialog').hide();"/>
+
+            <p:commandButton value="Abbrechen" onclick="PF('csvImportDialog').hide(); return false;"/>
+        </h:form>
+    </p:dialog>
 </h:body>
 </html>

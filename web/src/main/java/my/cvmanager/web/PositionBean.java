@@ -1,14 +1,18 @@
 package my.cvmanager.web;
 
-import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.SessionScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import my.cvmanager.domain.Position;
 import my.cvmanager.service.PositionService;
+import my.cvmanager.util.CSVReader;
+import org.primefaces.model.file.UploadedFile;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * Backing bean for managing {@link Position} entities in the UI.
@@ -19,8 +23,9 @@ import java.util.List;
  * </p>
  */
 @Named("positionBean")
-@ApplicationScoped
+@SessionScoped
 public class PositionBean implements Serializable {
+    private final Logger logger = Logger.getLogger(PositionBean.class.getCanonicalName());
 
     private String title;
     private String company;
@@ -28,6 +33,9 @@ public class PositionBean implements Serializable {
     private LocalDate startDate;
     private LocalDate endDate;
     private String description;
+
+    // updload CSV
+    private UploadedFile csvFile;
 
     private Position selectedPosition;
 
@@ -59,7 +67,25 @@ public class PositionBean implements Serializable {
             positionService.update(selectedPosition);
         }
         clearForm();
+
         return null;
+    }
+
+    public void csvImport() {
+        logger.info("csvFile: " + csvFile.getFileName());
+        //TODO: read csv and add postions
+        CSVReader<Position> csvReader = new CSVReader<>();
+        List<Position> positions = null;
+        try {
+            positions = csvReader.readCSV(csvFile.getInputStream(), Position.class);
+            for (Position pos : positions) {
+                if (pos != null) {
+                    logger.info("position: " + pos.getTitle());
+                }
+            }
+        } catch (IOException e) {
+            logger.info("cannot import csv file: " + e.getMessage());
+        }
     }
 
     /**
@@ -70,6 +96,7 @@ public class PositionBean implements Serializable {
      */
     public String delete(Position pos) {
         positionService.delete(pos.getId());
+
         return null;
     }
 
@@ -87,6 +114,7 @@ public class PositionBean implements Serializable {
         this.startDate = pos.getStartDate();
         this.endDate = pos.getEndDate();
         this.description = pos.getDescription();
+
         return null;
     }
 
@@ -113,6 +141,14 @@ public class PositionBean implements Serializable {
     }
 
     // ---------------- Getters & Setters ---------------- //
+
+    public UploadedFile getCsvFile() {
+        return csvFile;
+    }
+
+    public void setCsvFile(UploadedFile csvFile) {
+        this.csvFile = csvFile;
+    }
 
     public String getTitle() {
         return title;
