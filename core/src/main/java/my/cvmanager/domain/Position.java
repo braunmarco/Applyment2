@@ -24,18 +24,14 @@ public class Position {
     private String description;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    @JoinColumn(name = "userProfile_id")
+    private UserProfile userProfile;
 
     @OneToMany(mappedBy = "position", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Technology> technologies = new ArrayList<>();
 
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getTitle() {
@@ -86,12 +82,12 @@ public class Position {
         this.description = description;
     }
 
-    public User getUser() {
-        return user;
+    public UserProfile getUser() {
+        return userProfile;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUser(UserProfile userProfile) {
+        this.userProfile = userProfile;
     }
 
     public List<Technology> getTechnologies() {
