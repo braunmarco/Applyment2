@@ -1,95 +1,133 @@
 package my.cvmanager.repositories;
 
-import org.hibernate.Session;
-import jakarta.persistence.criteria.CriteriaQuery;
-
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.Persistence;
-import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
-public class BaseDao<T> implements ICrudService<T> {
-    private EntityManager entityManager;
-    private EntityManagerFactory entityManagerFactory;
+/**
+ * Base class for Data Access Objects (DAOs).
+ *
+ * @param <T> the type of the entity
+ */
+public class BaseDao<T> {
 
-    public BaseDao() {
-        entityManager = getEntityManager();
+    private final Class<T> entityClass;
+
+    /**
+     * Constructor.
+     *
+     * @param entityClass the type of the entity
+     */
+    public BaseDao(Class<T> entityClass) {
+        this.entityClass = entityClass;
     }
 
-    public EntityManager getEntityManager() {
-        entityManagerFactory = Persistence.createEntityManagerFactory("cvmanagerPU");
-
-        return entityManagerFactory.createEntityManager();
-    }
-
-    public void setEntityManager(EntityManager entityManager) {
-        this.entityManager = entityManager;
-    }
-
-    @Override
-    public void persist(T entity) {
-        entityManager.getTransaction().begin();
+    /**
+     * Persists an entity.
+     *
+     * @param entity        the entity to persist
+     * @param entityManager the EntityManager
+     */
+    public void persist(T entity, EntityManager entityManager) {
         entityManager.persist(entity);
-        entityManager.getTransaction().commit();
-        entityManager.close();
     }
 
-    @Override
-    public T find(Class<T> clazz, Long id) {
-        entityManager.getTransaction().begin();
-        T result = entityManager.find(clazz, id);
-        entityManager.getTransaction().commit();
-        entityManager.close();
-        return result;
+    /**
+     * Finds an entity by its ID.
+     *
+     * @param id            the ID of the entity
+     * @param entityManager the EntityManager
+     * @return the entity or an empty Optional
+     */
+    public Optional<T> find(Long id, EntityManager entityManager) {
+        return Optional.ofNullable(entityManager.find(entityClass, id));
     }
 
-    @Override
-    public T update(T entity) {
-        entityManager.getTransaction().begin();
-        T result = entityManager.merge(entity);
-        entityManager.getTransaction().commit();
-        entityManager.close();
-
-        return result;
+    /**
+     * Updates an entity.
+     *
+     * @param entity        the entity to update
+     * @param entityManager the EntityManager
+     * @return the updated entity
+     * @throws EntityNotFoundException if the entity is not found
+     */
+    public T update(T entity, EntityManager entityManager) {
+        return Optional.ofNullable(entityManager.merge(entity))
+                .orElseThrow(EntityNotFoundException::new);
     }
 
-    @Override
-    public void delete(T entity) {
-        entityManager.getTransaction().begin();
+    /**
+     * Deletes an entity.
+     *
+     * @param entity        the entity to delete
+     * @param entityManager the EntityManager
+     */
+    public void delete(T entity, EntityManager entityManager) {
+        if (entity == null) {
+            throw new NullPointerException("Entity is null");
+        }
+        if (!entityManager.contains(entity)) {
+            entity = entityManager.merge(entity);
+        }
         entityManager.remove(entity);
-        entityManager.getTransaction().commit();
-        entityManager.close();
     }
 
-    @Override
-    public List<T> loadAll(Class<T> clazz, String query) {
-        entityManager.getTransaction().begin();
-        List<T> result = entityManager.createQuery(query, clazz).getResultList();
-        entityManager.getTransaction().commit();
-        entityManager.close();
-
-        return result;
+    /**
+     * Loads all entities.
+     *
+     * @param entityManager the EntityManager
+     * @return a list of all entities
+     */
+    public List<T> loadAll(EntityManager entityManager) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<T> cq = cb.createQuery(entityClass);
+        Root<T> root = cq.from(entityClass);
+        cq.select(root);
+        return entityManager.createQuery(cq).getResultList();
     }
 
-    /*public List<T> loadAll(final DetachedCriteria detachedCriteria) {
-        Session session = entityManager.unwrap(Session.class);
-        entityManager.getTransaction().begin();
-        List<T> result = detachedCriteria.getExecutableCriteria(session).list();
-        entityManager.getTransaction().commit();
-        entityManager.close();
-
-        return result;
+    /**
+     * Finds an entity by an attribute.
+     *
+     * @param attribute     the attribute to search for
+     * @param value         the value of the attribute
+     * @param entityManager the EntityManager
+     * @return the entity or an empty Optional
+     */
+    public Optional<T> findOne(String attribute, Object value, EntityManager entityManager) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<T> cq = cb.createQuery(entityClass);
+        Root<T> root = cq.from(entityClass);
+        cq.select(root).where(cb.equal(root.get(attribute), value));
+        return entityManager.createQuery(cq).getResultStream().findFirst();
     }
 
-    @SuppressWarnings("unchecked")
-    public T findOne(final DetachedCriteria detachedCriteria) {
-        Session session = entityManager.unwrap(Session.class);
-        entityManager.getTransaction().begin();
-        Optional<T> result = detachedCriteria.getExecutableCriteria(session).list().stream().findFirst();
-        entityManager.getTransaction().commit();
-        entityManager.close();
+    /**
+     * Finds an entity by multiple attributes.
+     *
+     * @param params        the attributes and their values
+     * @param entityManager the EntityManager
+     * @return the entity or an empty Optional
+     */
+    public Optional<T> findOne(Map<String, Object> params, EntityManager entityManager) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<T> cq = cb.createQuery(entityClass);
+        Root<T> root = cq.from(entityClass);
 
-        return result.orElse(null);
-    }*/
+        List<Predicate> predicates = new ArrayList<>();
+        for (Map.Entry<String, Object> entry : params.entrySet()) {
+            predicates.add(cb.equal(root.get(entry.getKey()), entry.getValue()));
+        }
+
+        cq.select(root).where(cb.and(predicates.toArray(new Predicate[0])));
+        return entityManager.createQuery(cq).getResultStream().findFirst();
+    }
 }

@@ -6,22 +6,18 @@
 
     <persistence-unit name="cvmanagerPU" transaction-type="JTA">
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
-        <jta-data-source>jdbc:h2:mem:CvManagerDS</jta-data-source>
-        <!-- <class>my.cvmanager.domain.User</class>
-        <class>my.cvmanager.domain.Position</class>
-        <class>my.cvmanager.domain.Technology </class>
-        -->
-        <properties>
-            <property name="hibernate.archive.autodetection" value="class"/>
-            <property name="jakarta.persistence.jdbc.driver" value="org.h2.Driver" />
-            <property name="jakarta.persistence.jdbc.url"    value="jdbc:h2:mem:test" />
-            <property name="jakarta.persistence.jdbc.user" value="sa" />
-            <property name="jakarta.persistence.jdbc.password" value="" />
+        <jta-data-source>java:/jdbc/CvManagerDS</jta-data-source>
 
-            <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect"/>
-            <property name="hibernate.hbm2ddl.auto" value="create-drop" />
+        <class>my.cvmanager.domain.UserProfile</class>
+        <class>my.cvmanager.domain.Position</class>
+        <class>my.cvmanager.domain.Technology</class>
+        <class>my.cvmanager.domain.User</class>
+        <properties>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
+            <property name="hibernate.hbm2ddl.auto" value="update"/>
             <property name="show_sql" value="true"/>
             <property name="hibernate.temp.use_jdbc_metadata_defaults" value="false"/>
+            <property name="hibernate.enable_lazy_load_no_trans" value="true"/>
         </properties>
     </persistence-unit>
 </persistence>

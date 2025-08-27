@@ -1,6 +1,7 @@
 package my.cvmanager.repositories;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ICrudService<T> {
     void persist(T entity);
@@ -8,6 +9,12 @@ public interface ICrudService<T> {
     T find(Class<T> clazz, Long id);
 
     T update(T entity);
+
+    T findOne(Class<T> clazz, String query);
+
+    T findOne(Class<T> clazz, String attr, Object value);
+
+    T findOne(Class<T> clazz, Map<String, Object> params);
 
     void delete(T entity);
 

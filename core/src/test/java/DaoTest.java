@@ -1,7 +1,6 @@
 import my.cvmanager.domain.Position;
 import my.cvmanager.domain.Technology;
-import my.cvmanager.domain.User;
-import my.cvmanager.repositories.BaseDao;
+import my.cvmanager.domain.UserProfile;
 import org.junit.Test;
 
 import java.time.LocalDate;
@@ -49,25 +48,25 @@ public class DaoTest {
         technology2.setLevel(Technology.Level.AAA.code());
 
         // create User
-        User user = new User();
-        user.setFirstName("Marco");
-        user.setLastName("Braun");
-        user.setEmail("braun_marco@gmx.de");
-        user.setPhone("+49 1755944513");
-        user.setLocation("Turmstrassed 63, 36124 Eichenzell");
-        user.setSummary("Test abcd");
+        UserProfile userProfile = new UserProfile();
+        userProfile.setFirstName("Marco");
+        userProfile.setLastName("Braun");
+        userProfile.setEmail("braun_marco@gmx.de");
+        userProfile.setPhone("+49 1755944513");
+        userProfile.setLocation("Turmstrassed 63, 36124 Eichenzell");
+        userProfile.setSummary("Test abcd");
 
         // add technology to position
         position.addTechnology(technology);
         position.addTechnology(technology2);
         // add position to user
-        user.addPosition(position);
-        user.addPosition(position2);
+        userProfile.addPosition(position);
+        userProfile.addPosition(position2);
 
-        BaseDao baseDao = new BaseDao();
-        baseDao.persist(user);
+        //UserServ service = new BaseDao<>();
+        //UserService userService = new BaseDao<>();
+        //service.persist(userProfile);
 
-        logger.info(user.toString());
+        logger.info(userProfile.toString());
     }
-
 }

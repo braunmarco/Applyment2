@@ -1,4 +1,4 @@
-package my.cvmanager;
+package my.cvmanager.web;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
@@ -19,10 +19,10 @@ public class Main extends HttpServlet {
     }
 
     @Override
-    public  void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+    public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         res.setContentType("text/html");
         PrintWriter out = res.getWriter();
-        out.println("<h1>"+message+"</h1>");
+        out.println("<h1>" + message + "</h1>");
     }
 
     public void destroy() {
