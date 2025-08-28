@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="jakarta.faces.html"
-      xmlns:p="http://primefaces.org/ui">
+      xmlns:p="http://primefaces.org/ui"
+>
 <h:head>
     <title>Positionen verwalten</title>
 </h:head>
@@ -9,6 +10,9 @@
     <!-- Hauptformular -->
     <h:form id="mainForm">
         <h1>Positionen verwalten</h1>
+
+        <!-- gloabal messages -->
+        <p:messages id="messages" autoUpdate="true" closable="true"/>
 
         <!-- Eingabeformular für neue Position -->
         <p:panel header="Neue Position anlegen">
@@ -65,12 +69,33 @@
                 <p:column headerText="Beschreibung">
                     #{pos.description}
                 </p:column>
-                <p:column>
-                    <p:commandButton value="Löschen" action="#{positionBean.delete(pos)}"
-                                     update=":mainForm:positionsTable"/>
-                </p:column>
-                <p:column>
-                    <p:commandButton value="Bearbeiten" action="#{positionBean.edit(pos)}" update="@form"/>
+
+                <!-- Aktionen -->
+                <p:column headerText="Aktionen" style="width:150px; text-align:center">
+                    <!-- Pfeil hoch -->
+                    <p:commandButton icon="pi pi-arrow-up"
+                                     action="#{positionBean.moveUp(pos)}"
+                                     update=":mainForm:positionsTable"
+                                     title="Nach oben verschieben"/>
+
+                    <!-- Pfeil runter -->
+                    <p:commandButton icon="pi pi-arrow-down"
+                                     action="#{positionBean.moveDown(pos)}"
+                                     update=":mainForm:positionsTable"
+                                     title="Nach unten verschieben"/>
+
+                    <!-- Bearbeiten -->
+                    <p:commandButton icon="pi pi-pencil"
+                                     action="#{positionBean.edit(pos)}"
+                                     update="@form"
+                                     title="Bearbeiten"/>
+
+                    <!-- Löschen -->
+                    <p:commandButton icon="pi pi-trash"
+                                     action="#{positionBean.delete(pos)}"
+                                     update=":mainForm:positionsTable"
+                                     title="Löschen"
+                                     styleClass="ui-button-danger"/>
                 </p:column>
             </p:dataTable>
         </p:panel>

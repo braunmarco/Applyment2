@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "positions")
@@ -29,6 +30,13 @@ public class Position {
 
     @OneToMany(mappedBy = "position", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Technology> technologies = new ArrayList<>();
+
+    /**
+     * Defines the order of the position in the list.
+     * Used for sorting and reordering in UI.
+     */
+    @Column
+    private Long orderIndex;
 
     public Long getId() {
         return id;
@@ -100,5 +108,29 @@ public class Position {
 
     public void addTechnology(Technology technology) {
         this.technologies.add(technology);
+    }
+
+    public Long getOrderIndex() {
+        return orderIndex;
+    }
+
+    public void setOrderIndex(Long orderIndex) {
+        this.orderIndex = orderIndex;
+    }
+
+    // --- equals & hashCode ---
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Position)) return false;
+        Position other = (Position) o;
+        // Wichtig: nur die ID vergleichen, und nur wenn sie != null ist
+        return id != null && id.equals(other.id);
+    }
+
+    @Override
+    public int hashCode() {
+        // HashCode darf sich nie ändern -> nur die Klasse selbst
+        return Objects.hashCode(id);
     }
 }

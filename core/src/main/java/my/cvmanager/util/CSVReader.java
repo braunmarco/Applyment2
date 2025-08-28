@@ -32,29 +32,6 @@ public class CSVReader<T> {
         return objects;
     }
 
-    /*private T createObject(Class<T> clazz, String[] headers, String[] values) {
-        try {
-            Constructor<T> constructor = clazz.getConstructor();
-            T object = constructor.newInstance();
-
-            for (int i = 0; i < headers.length; i++) {
-                Field field = clazz.getDeclaredField(headers[i].toLowerCase());
-                field.setAccessible(true);
-                if (field.getType() == String.class) {
-                    field.set(object, values[i].trim().replace("\"", ""));
-                } else if (field.getType() == LocalDate.class) {
-                    field.set(object, LocalDate.parse(values[i].trim().replace("\"", "")));
-                }
-                // weitere Typen hinzufügen
-            }
-
-            return object;
-        } catch (Exception e) {
-            System.out.println("Fehler beim Erstellen des Objekts: " + e.getMessage());
-            return null;
-        }
-    }*/
-
     /**
      * Creates an object of type T from CSV headers and values.
      *

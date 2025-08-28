@@ -42,6 +42,8 @@ public class PositionBean implements Serializable {
     @Inject
     private PositionService positionService;
 
+    private List<Position> positions;
+
     /**
      * Saves a new position or updates an existing one.
      *
@@ -49,14 +51,15 @@ public class PositionBean implements Serializable {
      */
     public String save() {
         if (selectedPosition == null) {
-            Position pos = new Position();
-            pos.setTitle(title);
-            pos.setCompany(company);
-            pos.setLocation(location);
-            pos.setStartDate(startDate);
-            pos.setEndDate(endDate);
-            pos.setDescription(description);
-            positionService.save(pos);
+            Position position = new Position();
+            position.setTitle(title);
+            position.setCompany(company);
+            position.setLocation(location);
+            position.setStartDate(startDate);
+            position.setEndDate(endDate);
+            position.setDescription(description);
+
+            positionService.save(position);
         } else {
             selectedPosition.setTitle(title);
             selectedPosition.setCompany(company);
@@ -64,25 +67,34 @@ public class PositionBean implements Serializable {
             selectedPosition.setStartDate(startDate);
             selectedPosition.setEndDate(endDate);
             selectedPosition.setDescription(description);
+
             positionService.update(selectedPosition);
         }
         clearForm();
+        positions = positionService.findAllOrdered();
 
         return null;
     }
 
+    /**
+     * Returns a list of all positions.
+     *
+     * @return list of positions
+     */
+    public List<Position> getPositions() {
+        if (positions == null) {
+            positions = positionService.findAllOrdered(); // ORDER BY orderIndex
+        }
+
+        return positions;
+    }
+
     public void csvImport() {
-        logger.info("csvFile: " + csvFile.getFileName());
-        //TODO: read csv and add postions
         CSVReader<Position> csvReader = new CSVReader<>();
-        List<Position> positions = null;
         try {
-            positions = csvReader.readCSV(csvFile.getInputStream(), Position.class);
-            for (Position pos : positions) {
-                if (pos != null) {
-                    logger.info("position: " + pos.getTitle());
-                }
-            }
+            List<Position> imported = csvReader.readCSV(csvFile.getInputStream(), Position.class);
+            positionService.importFromCsvOrdered(imported);
+            positions = positionService.findAllOrderedUp();
         } catch (IOException e) {
             logger.info("cannot import csv file: " + e.getMessage());
         }
@@ -96,6 +108,7 @@ public class PositionBean implements Serializable {
      */
     public String delete(Position pos) {
         positionService.delete(pos.getId());
+        positions = positionService.findAllOrdered();
 
         return null;
     }
@@ -131,13 +144,16 @@ public class PositionBean implements Serializable {
         description = null;
     }
 
-    /**
-     * Returns a list of all positions.
-     *
-     * @return list of positions
-     */
-    public List<Position> getPositions() {
-        return positionService.findAll();
+    public void moveUp(Position pos) {
+        this.selectedPosition = pos;
+        positionService.moveUp(pos);
+        positions = positionService.findAllOrdered(); // Liste neu laden
+    }
+
+    public void moveDown(Position pos) {
+        this.selectedPosition = pos;
+        positionService.moveDown(pos);
+        positions = positionService.findAllOrdered(); // Liste neu laden
     }
 
     // ---------------- Getters & Setters ---------------- //
