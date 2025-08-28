@@ -1,22 +1,42 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:p="http://primefaces.org/ui">
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
 <h:head>
     <title>Registrieren</title>
+    <h:outputStylesheet library="css" name="register.css"/>
 </h:head>
-<h:body>
-    <h:form>
-        <p:panel header="Registrieren">
-            <p:messages autoUpdate="true"/>
+<h:body class="register-page">
+    <div class="register-container">
+        <h:form id="registerForm">
+            <p:panel header="Registrieren" styleClass="register-panel">
+                <p:messages autoUpdate="true" closable="true"/>
 
-            <p:inputText id="username" value="#{userBean.username}" placeholder="Benutzername" required="true"/>
-            <p:password id="password" value="#{userBean.password}" placeholder="Passwort" required="true"/>
-            <p:inputText id="email" value="#{userBean.email}" placeholder="Email" required="true"/>
+                <p:panelGrid columns="1" columnClasses="fullwidth" layout="grid" styleClass="form-grid">
+                    <p:inputText id="username" value="#{userBean.username}" placeholder="Benutzername" required="true"
+                                 label="Benutzername"/>
+                    <p:inputText id="email" value="#{userBean.email}" placeholder="E-Mail" required="true"
+                                 label="E-Mail"/>
 
-            <p:commandButton value="Registrieren" action="#{userBean.register}" update="@form"/>
-            <h:link outcome="login.xhtml" value="Schon registriert? Login"/>
-        </p:panel>
-    </h:form>
+                    <p:password id="password" value="#{userBean.password}" placeholder="Passwort"
+                                required="true" toggleMask="true" feedback="false" label="Passwort"/>
+
+                    <p:password id="confirmPassword" value="#{userBean.confirmPassword}"
+                                placeholder="Passwort bestätigen"
+                                required="true" toggleMask="true" feedback="false" label="Passwort bestätigen">
+                        <f:validator validatorId="confirmPasswordValidator"/>
+                        <f:attribute name="otherValue" value="#{userBean.password}"/>
+                    </p:password>
+                </p:panelGrid>
+
+                <div class="button-row">
+                    <p:commandButton value="Registrieren" action="#{userBean.register}" update="@form"
+                                     styleClass="btn btn-register"/>
+                    <p:button value="Zurück zum Login" outcome="login.xhtml" styleClass="btn btn-back-login"/>
+                </div>
+            </p:panel>
+        </h:form>
+    </div>
 </h:body>
 </html>

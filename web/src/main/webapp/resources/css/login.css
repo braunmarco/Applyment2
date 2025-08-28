@@ -17,3 +17,63 @@ body {
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
+
+/* Login-Button */
+.btn-login {
+    background-color: #28a745 !important; /* Grün */
+    border: none !important;
+    color: white !important;
+    margin-right: 10px;
+}
+
+.btn-login:hover {
+    background-color: #218838 !important;
+}
+
+/* Register-Button */
+.btn-register {
+    background-color: #007bff !important; /* Blau */
+    border: none !important;
+    color: white !important;
+}
+
+.btn-register:hover {
+    background-color: #0069d9 !important;
+}
+
+.button-container {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.login-panel .ui-button {
+    margin-right: 10px;
+    margin-top: 10px;
+}
+
+/* Stelle sicher, dass Username- und Passwortfelder gleich breit sind */
+.ui-inputfield {
+    width: 100% !important;
+    box-sizing: border-box; /* verhindert, dass Padding die Breite verändert */
+}
+
+/* Passwortfeld mit Toggle-Maske */
+.ui-password {
+    width: 100% !important;
+}
+
+.ui-password input {
+    width: 100% !important; /* Eingabefeld voll breit */
+}
+
+/* Das Toggle-Icon (Auge) anpassen */
+.ui-password .ui-password-toggle {
+    right: 10px !important; /* etwas Abstand nach innen */
+    top: 50%;
+    transform: translateY(-50%); /* vertikal mittig */
+}
+
+.login-panel .ui-inputfield {
+    margin-top: 10px; /* Abstand nach oben */
+    margin-bottom: 10px; /* optional: Abstand nach unten */
+}

@@ -7,15 +7,36 @@
     <h:outputStylesheet library="css" name="login.css"/>
 </h:head>
 <h:body>
-    <div class="container">
+    <div class="button-container">
         <h:form>
             <p:panel header="Login" styleClass="login-panel">
                 <p:messages autoUpdate="true"/>
-                <p:inputText id="username" value="#{userBean.username}" placeholder="Benutzername" required="true"/>
-                <p:password id="password" value="#{userBean.password}" placeholder="Passwort" required="true"/>
+                <p:inputText id="username"
+                             value="#{userBean.username}"
+                             placeholder="Benutzername"
+                             required="true"/>
+
+                <p:password id="password"
+                            value="#{userBean.password}"
+                            placeholder="Passwort"
+                            required="true"
+                            feedback="false"
+                            toggleMask="true"/>
+
                 <div class="button-container">
-                    <p:commandButton value="Login" action="#{userBean.login}" update="@form"/>
-                    <h:link outcome="register.xhtml" value="Noch kein Konto? Registrieren"/>
+                    <p:commandButton value="Login"
+                                     action="#{userBean.login}"
+                                     update="@form"
+                                     styleClass="btn-login"/>
+
+                    <p:button value="Registrieren"
+                              outcome="register.xhtml"
+                              styleClass="btn-register"/>
+
+                    <p:commandButton value="Passwort vergessen?"
+                                     styleClass="btn-forgot"
+                                     action="#{userBean.forgotPassword}"
+                                     update="@form"/>
                 </div>
             </p:panel>
         </h:form>

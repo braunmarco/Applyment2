@@ -1,0 +1,141 @@
+/* --- Seitenlayout nur für Register-Seite --- */
+.register-page {
+    min-height: 100vh;
+    margin: 0;
+    background: #f5f6f8;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: Arial, sans-serif;
+}
+
+/* Container begrenzen */
+.register-container {
+    width: 100%;
+    max-width: 420px;
+    padding: 12px;
+    box-sizing: border-box;
+}
+
+/* Panel-Optik */
+.register-panel.ui-panel {
+    background: #fff;
+    border: 1px solid #e3e6eb;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, .06);
+}
+
+.register-panel .ui-panel-titlebar {
+    border-bottom: 1px solid #eef1f5;
+    padding: .9rem 1.1rem;
+}
+
+.register-panel .ui-panel-title {
+    font-weight: 600;
+    color: #2f3640;
+}
+
+/* Grid/Feldbreiten */
+.form-grid .fullwidth {
+    width: 100%;
+}
+
+.register-panel .ui-inputfield,
+.register-panel .ui-password,
+.register-panel .ui-password input {
+    width: 100% !important;
+    box-sizing: border-box;
+}
+
+/* Abstände zwischen Inputs */
+.register-panel .ui-inputfield,
+.register-panel .ui-password {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+/* Platzhalter etwas dunkler */
+.register-panel .ui-inputfield::placeholder,
+.register-panel .ui-password input::placeholder {
+    color: #9aa1a9;
+}
+
+/* Fokuszustand Inputs */
+.register-panel .ui-inputfield:focus,
+.register-panel .ui-password input:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, .15);
+    border-color: #7ab3ff;
+}
+
+/* Passwort Toggle (Auge) sauber positionieren */
+.register-panel .ui-password .ui-password-toggle {
+    right: 10px !important;
+    top: 50% !important;
+    transform: translateY(-50%);
+}
+
+/* Button-Reihe */
+.button-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+/* Basis-Button */
+.btn {
+    flex: 1 1 auto;
+    border: none !important;
+    color: #fff !important;
+    padding: 10px 14px !important;
+    border-radius: 8px !important;
+    font-size: 14px !important;
+}
+
+/* Primär: Registrieren (Blau) */
+.btn-register {
+    background-color: #2f80ed !important;
+}
+
+.btn-register:hover {
+    background-color: #226bd0 !important;
+}
+
+/* Sekundär: Zurück zum Login (Grün) */
+.btn-back-login {
+    background-color: #2dbf74 !important;
+}
+
+.btn-back-login:hover {
+    background-color: #25a564 !important;
+}
+
+/* Linkartige Hinweise (falls verwendet) */
+.btn-link.ui-button {
+    background: transparent !important;
+    border: none !important;
+    color: #2f80ed !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+}
+
+.btn-link.ui-button:hover {
+    text-decoration: underline;
+}
+
+/* Messages etwas luftiger */
+.register-panel .ui-messages,
+.register-panel .ui-message {
+    margin-bottom: 8px;
+}
+
+/* Responsive Feinschliff */
+@media (max-width: 420px) {
+    .button-row {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+    }
+}

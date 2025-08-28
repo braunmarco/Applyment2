@@ -6,10 +6,12 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import my.cvmanager.domain.User;
 import my.cvmanager.repositories.UserDao;
+import my.cvmanager.service.exception.UserNotFoundException;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.logging.Logger;
 
 /**
@@ -113,11 +115,13 @@ public class UserService implements IUserService {
             Optional<User> user = dao.findOne("username", username, em);
             if (user.isPresent() && user.get().getPassword().equals(password)) {
                 user.get().setLoggedIn(true); // mark user as logged-in.
+
                 return dao.update(user.get(), em); // update user
             }
         } catch (Exception ex) {
             logger.severe("Error during login: " + ex.getMessage());
         }
+
         return null;
     }
 
@@ -130,10 +134,101 @@ public class UserService implements IUserService {
     @Override
     public void logout(Long userId) {
         Optional<User> user = dao.find(userId, em);
-        if (user.isPresent()) {
-            user.get().setLoggedIn(false);
-            dao.update(user.get(), em); // update user
+        user.ifPresent(value -> {
+            value.setLoggedIn(false);
+            dao.update(value, em);
+        });
+    }
+
+    /**
+     * Updates the password of the user identified by the given ID.
+     * <p>
+     * Internally delegates to {@link #updatePasswordInternal(Supplier, String)}
+     * to locate the user and update the password after hashing.
+     * </p>
+     *
+     * @param id             the ID of the user whose password should be updated
+     * @param newRawPassword the new raw password (will be hashed internally)
+     */
+    @Transactional
+    public void updatePassword(Long id, String newRawPassword) {
+        updatePasswordInternal(() -> dao.find(id, em), newRawPassword);
+    }
+
+    /**
+     * Resets the password for the user identified by the given email address.
+     * <p>
+     * This method looks up the user by email, hashes the provided raw password,
+     * and updates the persisted user record. If the user cannot be found,
+     * it should either log a warning or throw a custom exception depending
+     * on the service implementation.
+     * </p>
+     *
+     * @param email          the email of the user whose password should be reset
+     * @param newRawPassword the new raw password (will be hashed internally)
+     * @throws IllegalArgumentException if the email is {@code null} or empty
+     * @throws UserNotFoundException    if no user exists with the given email
+     */
+    @Transactional
+    public void resetPassword(String email, String newRawPassword) {
+        if (email == null || email.isBlank()) {
+            throw new IllegalArgumentException("Email must not be null or empty");
         }
+
+        Optional<User> user = dao.findOne("email", email, em);
+        if (user.isEmpty()) {
+            throw new UserNotFoundException("No user found with email: " + email);
+        }
+
+        updatePasswordInternal(() -> dao.findOne("email", email, em), newRawPassword);
+    }
+
+    /**
+     * Internal helper method to update a user's password.
+     * <p>
+     * This method takes a {@link Supplier} that resolves a user lookup
+     * (by ID or email), and if found, updates the password with a hashed value.
+     * If no user is found, a warning is logged.
+     * </p>
+     *
+     * @param finder      supplier providing an {@link Optional} of the user
+     * @param rawPassword the new raw password to set (will be hashed)
+     */
+    private void updatePasswordInternal(Supplier<Optional<User>> finder, String rawPassword) {
+        finder.get().ifPresentOrElse(user -> {
+            // immer hashen – niemals ein Raw-Passwort speichern
+            user.setPassword(hash(rawPassword));
+            dao.update(user, em);
+        }, () -> logger.warning("User not found"));
+    }
+
+    /**
+     * Generates a new password string.
+     * <p>
+     * Currently returns a placeholder hashed password.
+     * A proper password generator should be implemented in the future.
+     * </p>
+     *
+     * @return a newly generated (placeholder) password string
+     */
+    public String findNewPassword() {
+        //TODO: create password generator
+        return hash("newPassword");
+    }
+
+    /**
+     * Hashes the provided raw password string.
+     * <p>
+     * This is a placeholder implementation and should be replaced with
+     * a secure hashing algorithm (e.g., BCrypt, Argon2).
+     * </p>
+     *
+     * @param raw the raw password string
+     * @return the hashed password (currently just returns the raw value)
+     */
+    private String hash(String raw) {
+        // z.B. BCrypt
+        return raw; // Platzhalter
     }
 
     /**
