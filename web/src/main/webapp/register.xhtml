@@ -10,31 +10,83 @@
 <h:body class="register-page">
     <div class="register-container">
         <h:form id="registerForm">
+
+            <!-- Popup-Meldungen (global) -->
+            <p:growl id="growl"
+                     showDetail="true"
+                     skipDetailIfEqualsSummary="true"
+                     life="5000"
+                     closable="true"
+                     autoUpdate="true"
+                     globalOnly="true"
+                     position="top-right"/>
+
             <p:panel header="Registrieren" styleClass="register-panel">
-                <p:messages autoUpdate="true" closable="true"/>
+
+                <!-- Inline-Validierungen für einzelne Felder -->
+                <p:messages id="msgs"
+                            showDetail="true"
+                            closable="true"
+                            autoUpdate="true"
+                            for="@all"/>
 
                 <p:panelGrid columns="1" columnClasses="fullwidth" layout="grid" styleClass="form-grid">
-                    <p:inputText id="username" value="#{userBean.username}" placeholder="Benutzername" required="true"
-                                 label="Benutzername"/>
-                    <p:inputText id="email" value="#{userBean.email}" placeholder="E-Mail" required="true"
-                                 label="E-Mail"/>
 
-                    <p:password id="password" value="#{userBean.password}" placeholder="Passwort"
-                                required="true" toggleMask="true" feedback="false" label="Passwort"/>
+                    <!-- Benutzername -->
+                    <p:inputText id="username"
+                                 value="#{userBean.username}"
+                                 placeholder="Benutzername"
+                                 label="Benutzername"
+                                 required="true"
+                                 requiredMessage="Bitte Benutzernamen angeben."
+                                 autofocus="true"/>
 
-                    <p:password id="confirmPassword" value="#{userBean.confirmPassword}"
+                    <!-- E-Mail -->
+                    <p:inputText id="email"
+                                 value="#{userBean.email}"
+                                 placeholder="E-Mail"
+                                 label="E-Mail"
+                                 required="true"
+                                 requiredMessage="Bitte E-Mail angeben.">
+                        <f:validateRegex pattern="^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"/>
+                    </p:inputText>
+
+                    <!-- Passwort -->
+                    <p:password id="password"
+                                value="#{userBean.password}"
+                                placeholder="Passwort"
+                                label="Passwort"
+                                required="true"
+                                requiredMessage="Bitte Passwort angeben."
+                                toggleMask="true"
+                                feedback="false"/>
+
+                    <!-- Passwort bestätigen -->
+                    <p:password id="confirmPassword"
+                                value="#{userBean.confirmPassword}"
                                 placeholder="Passwort bestätigen"
-                                required="true" toggleMask="true" feedback="false" label="Passwort bestätigen">
+                                label="Passwort bestätigen"
+                                required="true"
+                                requiredMessage="Bitte Passwortbestätigung angeben."
+                                toggleMask="true"
+                                feedback="false">
+                        <!-- eigener Validator: confirm == password -->
                         <f:validator validatorId="confirmPasswordValidator"/>
                         <f:attribute name="otherValue" value="#{userBean.password}"/>
                     </p:password>
+
                 </p:panelGrid>
 
                 <div class="button-row">
-                    <p:commandButton value="Registrieren" action="#{userBean.register}" update="@form"
+                    <p:commandButton value="Registrieren"
+                                     action="#{userBean.register}"
+                                     update="@form growl msgs"
                                      styleClass="btn btn-register"/>
-                    <p:button value="Zurück zum Login" outcome="login.xhtml" styleClass="btn btn-back-login"/>
+                    <p:button value="Zurück zum Login"
+                              outcome="login.xhtml"
+                              styleClass="btn btn-back-login"/>
                 </div>
+
             </p:panel>
         </h:form>
     </div>

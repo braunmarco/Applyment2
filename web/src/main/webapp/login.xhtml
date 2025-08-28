@@ -8,25 +8,48 @@
 </h:head>
 <h:body>
     <div class="button-container">
-        <h:form>
+        <h:form id="loginForm">
+
+            <!-- Popup-Meldungen (global) -->
+            <p:growl id="growl"
+                     showDetail="true"
+                     skipDetailIfEqualsSummary="true"
+                     life="5000"
+                     closable="true"
+                     autoUpdate="true"
+                     globalOnly="true"
+                     position="top-right"/>
+
             <p:panel header="Login" styleClass="login-panel">
-                <p:messages autoUpdate="true"/>
+
+                <!-- Inline-Validierungen (feldbezogen) -->
+                <p:messages id="msgs"
+                            showDetail="true"
+                            closable="true"
+                            autoUpdate="true"
+                            for="@all"/>
+
                 <p:inputText id="username"
                              value="#{userBean.username}"
                              placeholder="Benutzername"
-                             required="true"/>
+                             label="Benutzername"
+                             required="true"
+                             requiredMessage="Bitte Benutzernamen angeben."
+                             autofocus="true"/>
 
                 <p:password id="password"
                             value="#{userBean.password}"
                             placeholder="Passwort"
+                            label="Passwort"
                             required="true"
+                            requiredMessage="Bitte Passwort angeben."
                             feedback="false"
                             toggleMask="true"/>
 
                 <div class="button-container">
                     <p:commandButton value="Login"
                                      action="#{userBean.login}"
-                                     update="@form"
+                                     update="@form growl msgs"
                                      styleClass="btn-login"/>
 
                     <p:button value="Registrieren"
@@ -34,9 +57,9 @@
                               styleClass="btn-register"/>
 
                     <p:commandButton value="Passwort vergessen?"
-                                     styleClass="btn-forgot"
                                      action="#{userBean.forgotPassword}"
-                                     update="@form"/>
+                                     update="@form growl msgs"
+                                     styleClass="btn-forgot"/>
                 </div>
             </p:panel>
         </h:form>

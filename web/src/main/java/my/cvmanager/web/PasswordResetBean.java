@@ -6,6 +6,7 @@ import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import my.cvmanager.service.UserService;
+import my.cvmanager.service.exception.UserNotFoundException;
 
 import java.io.Serializable;
 
@@ -59,17 +60,31 @@ public class PasswordResetBean implements Serializable {
                 FacesContext.getCurrentInstance().addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_WARN,
                                 "Passwords do not match.", null));
-                return null; // stay on the same view
+                return null;
             }
 
-            return resetPasswordByEmail(resetEmail, newPassword);
+            userService.resetPassword(resetEmail, newPassword);
 
-        } catch (Exception ex) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_INFO,
+                            "Password has been successfully changed.", null));
+
+            clearForm();
+            return "login.xhtml?faces-redirect=true";
+
+        } catch (UserNotFoundException e) {
+            // Specific handling if the user does not exist
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            "Error while resetting password.", null));
+                            "No user found with the provided email address.", null));
+        } catch (Exception ex) {
+            // Generic fallback for unexpected errors
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                            "An unexpected error occurred while resetting the password.", null));
         }
-        return null; // stay on the same page
+
+        return null; // stay on same page if there was an error
     }
 
     /**
