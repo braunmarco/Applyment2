@@ -70,6 +70,7 @@ public class PositionBean implements Serializable {
 
             positionService.update(selectedPosition);
         }
+
         clearForm();
         positions = positionService.findAllOrdered();
 

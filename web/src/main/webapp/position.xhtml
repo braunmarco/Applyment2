@@ -1,16 +1,14 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="jakarta.faces.html"
-      xmlns:p="http://primefaces.org/ui"
->
+      xmlns:p="http://primefaces.org/ui">
 <h:head>
     <title>Positionen verwalten</title>
+    <h:outputStylesheet library="css" name="style.css"/>
 </h:head>
 <h:body>
     <!-- Hauptformular -->
     <h:form id="mainForm">
-        <h1>Positionen verwalten</h1>
-
         <!-- gloabal messages -->
         <p:messages id="messages" autoUpdate="true" closable="true"/>
 
@@ -43,8 +41,13 @@
 
         <!-- Buttons -->
         <p:panel>
-            <p:commandButton value="Speichern" action="#{positionBean.save}" update=":mainForm:positionsTable"/>
-            <p:commandButton id="csvImportButton" value="CSV Import"
+            <p:commandButton icon="pi pi-save"
+                             styleClass="btn-round btn-save"
+                             action="#{positionBean.save}"
+                             update=":mainForm:positionsTable"/>
+            <p:commandButton id="csvImportButton"
+                             icon="pi pi-upload"
+                             styleClass="btn-round btn-import"
                              onclick="PF('csvImportDialog').show(); return false;"/>
         </p:panel>
 
@@ -92,6 +95,7 @@
 
                     <!-- Löschen -->
                     <p:commandButton icon="pi pi-trash"
+                                     style=""
                                      action="#{positionBean.delete(pos)}"
                                      update=":mainForm:positionsTable"
                                      title="Löschen"
@@ -100,7 +104,10 @@
             </p:dataTable>
         </p:panel>
 
-        <h:link value="Zurück" outcome="home.xhtml"/>
+        <p:button value="Zurück"
+                  icon="pi pi-arrow-left"
+                  outcome="home.xhtml"
+                  styleClass="btn-back"/>
     </h:form>
 
     <!-- Dialog für CSV-Upload -->

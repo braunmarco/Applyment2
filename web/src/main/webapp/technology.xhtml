@@ -4,30 +4,55 @@
       xmlns:p="http://primefaces.org/ui">
 <h:head>
     <title>Technologien verwalten</title>
+    <h:outputStylesheet library="css" name="style.css"/>
 </h:head>
 <h:body>
-    <h:form>
-        <h1>Technologien verwalten</h1>
+    <!-- Hauptformular -->
+    <h:form id="mainForm">
+        <!-- gloabal messages -->
+        <p:messages id="messages" autoUpdate="true" closable="true"/>
 
         <p:panel header="Neue Technologie anlegen">
-            <h:outputLabel for="name" value="Name:"/>
-            <p:inputText id="name" value="#{technologyBean.name}"/>
+            <p:panelGrid columns="2">
+                <h:outputLabel for="name" value="Name:"/>
+                <p:inputText id="name" value="#{technologyBean.name}"/>
+            </p:panelGrid>
+        </p:panel>
 
-            <p:commandButton value="Speichern" action="#{technologyBean.save}" update="@form"/>
+        <!-- Buttons -->
+        <p:panel>
+            <p:commandButton icon="pi pi-save"
+                             styleClass="btn-round btn-save"
+                             action="#{technologyBean.save}"
+                             update=":mainForm:technologyTable"/>
+
+            <p:commandButton id="csvImportButton"
+                             icon="pi pi-upload"
+                             styleClass="btn-round btn-import"
+                             onclick="PF('csvImportDialog').show(); return false;"/>
         </p:panel>
 
         <p:panel header="Alle Technologien">
-            <p:dataTable value="#{technologyBean.technologies}" var="tech" style="width:100%">
+            <p:dataTable id="technologyTable" value="#{technologyBean.technologies}" var="tech" style="width:100%">
                 <p:column headerText="Name">
                     #{tech.name}
                 </p:column>
                 <p:column>
-                    <p:commandButton value="Löschen" action="#{technologyBean.delete(tech)}" update="@form"/>
+                    <!-- Löschen -->
+                    <p:commandButton icon="pi pi-trash"
+                                     style=""
+                                     action="#{technologyBean.delete(tech)}"
+                                     update=":mainForm:technologyTable"
+                                     title="Löschen"
+                                     styleClass="ui-button-danger"/>
                 </p:column>
             </p:dataTable>
         </p:panel>
 
-        <h:link value="Zurück" outcome="home.xhtml"/>
+        <p:button value="Zurück"
+                  icon="pi pi-arrow-left"
+                  outcome="home.xhtml"
+                  styleClass="btn-back"/>
     </h:form>
 </h:body>
 </html>

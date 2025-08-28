@@ -51,6 +51,7 @@ public class TechnologyBean implements Serializable {
             selected.setName(name);
             technologyService.update(selected);
         }
+
         clearForm();
     }
 
