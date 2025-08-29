@@ -7,9 +7,12 @@ import jakarta.persistence.*;
 public class Technology {
 
     public enum Level {
-        AAA("AAA"),
-        AA("AA"),
-        A("A");
+        AAAAA("5"),
+        AAAA("4"),
+        AAA("3"),
+        AA("2"),
+        A("1"),
+        UNKNOWN("");
 
         String level;
 
@@ -20,6 +23,16 @@ public class Technology {
         public String code() {
             return level;
         }
+
+        public static Level fromCode(String code) {
+            for (Level level : Level.values()) {
+                if (level.code().equals(code)) {
+                    return level;
+                }
+            }
+
+            return UNKNOWN;
+        }
     }
 
     @Id
@@ -27,7 +40,9 @@ public class Technology {
     private Long id;
 
     private String name;
-    private String level; // "Beginner", "Intermediate", "Advanced"
+    //private String level; // "Beginner", "Intermediate", "Advanced"
+    @Enumerated(EnumType.STRING)
+    private Level level;
 
     @ManyToOne
     @JoinColumn(name = "position_id")
@@ -45,11 +60,11 @@ public class Technology {
         this.name = name;
     }
 
-    public String getLevel() {
+    public Technology.Level getLevel() {
         return level;
     }
 
-    public void setLevel(String level) {
+    public void setLevel(Technology.Level level) {
         this.level = level;
     }
 

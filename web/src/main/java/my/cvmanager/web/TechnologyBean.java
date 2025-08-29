@@ -31,10 +31,30 @@ public class TechnologyBean implements Serializable {
     private Technology selected;
 
     /**
+     * qualification of on technology
+     */
+    private Technology.Level level = Technology.Level.A;
+
+    /**
+     * Maximum of qualification level for a technology
+     */
+    private int maxLevel;
+
+    /**
      * The technology service instance.
      */
     @Inject
     private TechnologyService technologyService;
+
+    /**
+     * Initializes the bean when the view is first loaded.
+     * Clears all form fields to ensure that the form
+     * is empty when the page is opened.
+     */
+    @jakarta.annotation.PostConstruct
+    public void init() {
+        clearForm();
+    }
 
     /**
      * Saves a new technology or updates an existing one.
@@ -46,9 +66,11 @@ public class TechnologyBean implements Serializable {
         if (selected == null) {
             Technology tech = new Technology();
             tech.setName(name);
+            tech.setLevel(level);
             technologyService.save(tech);
         } else {
             selected.setName(name);
+            selected.setLevel(level);
             technologyService.update(selected);
         }
 
@@ -79,6 +101,7 @@ public class TechnologyBean implements Serializable {
     private void clearForm() {
         name = null;
         selected = null;
+        level = null;
     }
 
     // Getter & Setter
@@ -117,5 +140,33 @@ public class TechnologyBean implements Serializable {
      */
     public void setSelected(Technology selected) {
         this.selected = selected;
+    }
+
+    /**
+     * Gets the qulification level of a technology
+     *
+     * @return
+     */
+    public Technology.Level getLevel() {
+        return level;
+    }
+
+    /**
+     *
+     * Sets the qulification level of a technology
+     *
+     * @param level
+     */
+    public void setLevel(Technology.Level level) {
+        this.level = level;
+    }
+
+    /**
+     * Gets the maximum length of the enum 'Technology.Level'
+     *
+     * @return
+     */
+    public int getMaxLevel() {
+        return Technology.Level.values().length - 1;
     }
 }

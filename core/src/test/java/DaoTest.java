@@ -40,12 +40,12 @@ public class DaoTest {
         // name
         technology.setName("Java");
         // level
-        technology.setLevel(Technology.Level.AAA.code());
+        technology.setLevel(Technology.Level.AAA);
         Technology technology2 = new Technology();
         // name
         technology2.setName("Java");
         // level
-        technology2.setLevel(Technology.Level.AAA.code());
+        technology2.setLevel(Technology.Level.AAA);
 
         // create User
         UserProfile userProfile = new UserProfile();
