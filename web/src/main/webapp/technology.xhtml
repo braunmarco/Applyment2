@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+>
+
+<h:head>
+    <title>Technologien verwalten</title>
+    <h:outputStylesheet library="css" name="style.css"/>
+</h:head>
+<h:body>
+    <!-- Hauptformular -->
+    <h:form id="mainForm">
+        <!-- gloabal messages -->
+        <p:messages id="messages" autoUpdate="true" closable="true"/>
+
+        <p:panel header="Neue Technologie anlegen">
+            <p:panelGrid columns="2">
+                <h:outputLabel for="name" value="Name:"/>
+                <p:inputText id="name" value="#{technologyBean.name}"/>
+
+                <h:outputLabel value="Qualifikation"/>
+
+                <p:rating id="qualRating"
+                          value="#{technologyBean.level}"
+                          stars="#{technologyBean.maxLevel}"
+                          cancel="false"
+                          converter="#{levelConverter}"/>
+            </p:panelGrid>
+        </p:panel>
+
+        <!-- Buttons -->
+        <p:panel>
+            <p:commandButton icon="pi pi-save"
+                             styleClass="btn-round btn-save"
+                             action="#{technologyBean.save}"
+                             update="@form :mainForm:technologyTable"
+                             resetValues="true"/>
+
+            <p:commandButton id="csvImportButton"
+                             icon="pi pi-upload"
+                             styleClass="btn-round btn-import"
+                             onclick="PF('csvImportDialog').show(); return false;"/>
+        </p:panel>
+
+        <p:panel header="Alle Technologien">
+            <p:dataTable id="technologyTable" value="#{technologyBean.technologies}" var="tech" style="width:100%">
+                <p:column headerText="Name">
+                    #{tech.name}
+                </p:column>
+                <p:column headerText="Level">
+                    <p:rating id="qualRating"
+                              value="#{tech.level}"
+                              stars="#{technologyBean.maxLevel}"
+                              cancel="false"
+                              readonly="true"
+                              converter="#{levelConverter}"/>
+                </p:column>
+                <p:column>
+                    <!-- Löschen -->
+                    <p:commandButton icon="pi pi-trash"
+                                     style=""
+                                     action="#{technologyBean.delete(tech)}"
+                                     update=":mainForm:technologyTable"
+                                     title="Löschen"
+                                     styleClass="ui-button-danger"/>
+                </p:column>
+            </p:dataTable>
+        </p:panel>
+
+        <p:button value="Zurück"
+                  icon="pi pi-arrow-left"
+                  outcome="home.xhtml"
+                  styleClass="btn-back"/>
+    </h:form>
+</h:body>
+</html>

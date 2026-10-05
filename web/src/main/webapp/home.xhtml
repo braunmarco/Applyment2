@@ -1,14 +1,22 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:h="jakarta.faces.html"
       xmlns:p="http://primefaces.org/ui">
 <h:head>
-    <title>Home</title>
+    <title>CV-Manager - Home</title>
 </h:head>
 <h:body>
     <h:form>
-        <h:outputText value="Willkommen, #{userBean.loggedInUser.username}!"/>
-        <p:commandButton value="Logout" action="#{userBean.logout}"/>
+        <h1>Willkommen im CV-Manager</h1>
+
+        <p:panel header="Navigation" style="width:400px">
+            <p:menu>
+                <p:menuitem value="Positionen" outcome="position.xhtml" icon="pi pi-briefcase"/>
+                <p:menuitem value="Technologien" outcome="technology.xhtml" icon="pi pi-cog"/>
+                <p:menuitem value="Benutzerprofil" outcome="profile.xhtml" icon="pi pi-user"/>
+                <p:menuitem value="Logout" action="#{userBean.logout}" icon="pi pi-sign-out"/>
+            </p:menu>
+        </p:panel>
     </h:form>
 </h:body>
 </html>

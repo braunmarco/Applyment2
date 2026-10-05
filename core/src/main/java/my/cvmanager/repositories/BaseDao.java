@@ -47,8 +47,19 @@ public class BaseDao<T> {
      * @param entityManager the EntityManager
      * @return the entity or an empty Optional
      */
-    public Optional<T> find(Long id, EntityManager entityManager) {
+    public Optional<T> findBy(Long id, EntityManager entityManager) {
         return Optional.ofNullable(entityManager.find(entityClass, id));
+    }
+
+    /**
+     * Finds an entity by its ID.
+     *
+     * @param id            the ID of the entity
+     * @param entityManager the EntityManager
+     * @return the entity or an empty Optional
+     */
+    public T find(Long id, EntityManager entityManager) {
+        return entityManager.find(entityClass, id);
     }
 
     /**
@@ -91,6 +102,7 @@ public class BaseDao<T> {
         CriteriaQuery<T> cq = cb.createQuery(entityClass);
         Root<T> root = cq.from(entityClass);
         cq.select(root);
+
         return entityManager.createQuery(cq).getResultList();
     }
 
@@ -102,12 +114,16 @@ public class BaseDao<T> {
      * @param entityManager the EntityManager
      * @return the entity or an empty Optional
      */
-    public Optional<T> findOne(String attribute, Object value, EntityManager entityManager) {
+    public T findOne(String attribute, Object value, EntityManager entityManager) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<T> cq = cb.createQuery(entityClass);
         Root<T> root = cq.from(entityClass);
         cq.select(root).where(cb.equal(root.get(attribute), value));
-        return entityManager.createQuery(cq).getResultStream().findFirst();
+
+        Optional<T> first = entityManager.createQuery(cq).getResultStream().findFirst();
+
+        //return entityManager.createQuery(cq).getResultStream().findFirst();
+        return first.orElse(null);
     }
 
     /**
@@ -117,7 +133,7 @@ public class BaseDao<T> {
      * @param entityManager the EntityManager
      * @return the entity or an empty Optional
      */
-    public Optional<T> findOne(Map<String, Object> params, EntityManager entityManager) {
+    public T findOne(Map<String, Object> params, EntityManager entityManager) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<T> cq = cb.createQuery(entityClass);
         Root<T> root = cq.from(entityClass);
@@ -128,6 +144,8 @@ public class BaseDao<T> {
         }
 
         cq.select(root).where(cb.and(predicates.toArray(new Predicate[0])));
-        return entityManager.createQuery(cq).getResultStream().findFirst();
+        Optional<T> first = entityManager.createQuery(cq).getResultStream().findFirst();
+
+        return first.orElse(null);
     }
 }

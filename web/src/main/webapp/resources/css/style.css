@@ -1,0 +1,94 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    margin: 0;
+    height: auto; /* kein erzwungenes 100vh */
+}
+
+.container {
+    /*text-align: center;*/
+}
+
+.button-container {
+    margin-top: 20px;
+    text-align: center;
+}
+
+button.ui-button.btn-save {
+    margin-right: 10px;
+}
+
+.button-container .ui-commandButton {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+}
+
+.button-container .ui-link {
+    display: block;
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+/* Runder Icon-Button */
+.btn-round {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    padding: 0 !important;
+
+    display: inline-flex; /* Flex-Container */
+    align-items: center; /* vertikal zentrieren */
+    justify-content: center; /* horizontal zentrieren */
+    line-height: 40px; /* hilft, Font-Icons vertikal exakt zu zentrieren */
+}
+
+/* Platz, den PF für "Icon links/rechts" reserviert, entfernen */
+.btn-round.ui-button-text-icon-left,
+.btn-round.ui-button-text-icon-right {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+/* Icon-Span entkoppeln und mittig halten */
+.btn-round .ui-button-icon-left,
+.btn-round .ui-button-icon-right {
+    position: static !important; /* absolute Positionierung von PF aufheben */
+    margin: 0 !important;
+    line-height: 1; /* Icon selbst ohne Extra-Höhe */
+    font-size: 18px; /* Icon-Größe nach Wunsch */
+}
+
+/* Text ausblenden (du hast value="") */
+.btn-round .ui-button-text {
+    display: none !important;
+}
+
+/* Farbvarianten */
+.btn-save {
+    background-color: #28a745 !important; /* grün */
+    border: none !important;
+    color: white !important;
+}
+
+.btn-import {
+    background-color: #007bff !important; /* blau */
+    border: none !important;
+    color: white !important;
+}
+
+.btn-save:hover {
+    background-color: #218838 !important;
+}
+
+.btn-import:hover {
+    background-color: #0069d9 !important;
+}
+
+body .ui-panel .ui-panel-content {
+    border: 1px solid #dee2e6;
+    background: #fff;
+    color: #495057;
+    padding: 1rem;
+    margin-bottom: 10px;
+}

@@ -4,16 +4,65 @@
       xmlns:p="http://primefaces.org/ui">
 <h:head>
     <title>Login</title>
+    <h:outputStylesheet library="css" name="login.css"/>
 </h:head>
 <h:body>
-    <h:form>
-        <p:panel header="Login">
-            <p:messages autoUpdate="true"/>
-            <p:inputText id="username" value="#{userBean.username}" placeholder="Benutzername" required="true"/>
-            <p:password id="password" value="#{userBean.password}" placeholder="Passwort" required="true"/>
-            <p:commandButton value="Login" action="#{userBean.login}" update="@form"/>
-            <h:link outcome="register.xhtml" value="Noch kein Konto? Registrieren"/>
-        </p:panel>
-    </h:form>
+    <div class="button-container">
+        <h:form id="loginForm">
+
+            <!-- Popup-Meldungen (global) -->
+            <p:growl id="growl"
+                     showDetail="true"
+                     skipDetailIfEqualsSummary="true"
+                     life="5000"
+                     closable="true"
+                     autoUpdate="true"
+                     globalOnly="true"
+                     position="top-right"/>
+
+            <p:panel header="Login" styleClass="login-panel">
+
+                <!-- Inline-Validierungen (feldbezogen) -->
+                <p:messages id="msgs"
+                            showDetail="true"
+                            closable="true"
+                            autoUpdate="true"
+                            for="@all"/>
+
+                <p:inputText id="username"
+                             value="#{userBean.username}"
+                             placeholder="Benutzername"
+                             label="Benutzername"
+                             required="true"
+                             requiredMessage="Bitte Benutzernamen angeben."
+                             autofocus="true"/>
+
+                <p:password id="password"
+                            value="#{userBean.password}"
+                            placeholder="Passwort"
+                            label="Passwort"
+                            required="true"
+                            requiredMessage="Bitte Passwort angeben."
+                            feedback="false"
+                            toggleMask="true"/>
+
+                <div class="button-container">
+                    <p:commandButton value="Login"
+                                     action="#{userBean.login}"
+                                     update="@form growl msgs"
+                                     styleClass="btn-login"/>
+
+                    <p:button value="Registrieren"
+                              outcome="register.xhtml"
+                              styleClass="btn-register"/>
+
+                    <p:commandButton value="Passwort vergessen?"
+                                     action="#{userBean.forgotPassword}"
+                                     update="@form growl msgs"
+                                     styleClass="btn-forgot"/>
+                </div>
+            </p:panel>
+        </h:form>
+    </div>
 </h:body>
 </html>

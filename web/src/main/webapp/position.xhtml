@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui">
+<h:head>
+    <title>Positionen verwalten</title>
+    <h:outputStylesheet library="css" name="style.css"/>
+</h:head>
+<h:body>
+    <!-- Hauptformular -->
+    <h:form id="mainForm">
+        <!-- gloabal messages -->
+        <p:messages id="messages" autoUpdate="true" closable="true"/>
+
+        <!-- Eingabeformular für neue Position -->
+        <p:panel header="Neue Position anlegen">
+            <p:panelGrid columns="2">
+                <h:outputLabel for="title" value="Titel:"/>
+                <p:inputText id="title" value="#{positionBean.title}"/>
+
+                <h:outputLabel for="company" value="Firma:"/>
+                <p:inputText id="company" value="#{positionBean.company}"/>
+
+                <h:outputLabel for="location" value="Ort:"/>
+                <p:inputText id="location" value="#{positionBean.location}"/>
+
+                <h:outputLabel for="startDate" value="Startdatum:"/>
+                <p:calendar id="startDate" value="#{positionBean.startDate}"
+                            pattern="dd.MM.yyyy" type="date"
+                            converter="localDateConverter"/>
+
+                <h:outputLabel for="endDate" value="Enddatum:"/>
+                <p:calendar id="endDate" value="#{positionBean.endDate}"
+                            pattern="dd.MM.yyyy" type="date"
+                            converter="localDateConverter"/>
+
+                <h:outputLabel for="description" value="Beschreibung:"/>
+                <p:inputTextarea id="description" value="#{positionBean.description}"/>
+            </p:panelGrid>
+        </p:panel>
+
+        <!-- Buttons -->
+        <p:panel>
+            <p:commandButton icon="pi pi-save"
+                             styleClass="btn-round btn-save"
+                             action="#{positionBean.save}"
+                             update=":mainForm:positionsTable"/>
+            <p:commandButton id="csvImportButton"
+                             icon="pi pi-upload"
+                             styleClass="btn-round btn-import"
+                             onclick="PF('csvImportDialog').show(); return false;"/>
+        </p:panel>
+
+        <!-- Tabelle mit allen Positionen -->
+        <p:panel header="Alle Positionen">
+            <p:dataTable id="positionsTable" value="#{positionBean.positions}" var="pos" style="width:100%">
+                <p:column headerText="Titel">
+                    #{pos.title}
+                </p:column>
+                <p:column headerText="Firma">
+                    #{pos.company}
+                </p:column>
+                <p:column headerText="Ort">
+                    #{pos.location}
+                </p:column>
+                <p:column headerText="Startdatum">
+                    #{pos.startDate}
+                </p:column>
+                <p:column headerText="Enddatum">
+                    #{pos.endDate}
+                </p:column>
+                <p:column headerText="Beschreibung">
+                    #{pos.description}
+                </p:column>
+
+                <!-- Aktionen -->
+                <p:column headerText="Aktionen" style="width:150px; text-align:center">
+                    <!-- Pfeil hoch -->
+                    <p:commandButton icon="pi pi-arrow-up"
+                                     action="#{positionBean.moveUp(pos)}"
+                                     update=":mainForm:positionsTable"
+                                     title="Nach oben verschieben"/>
+
+                    <!-- Pfeil runter -->
+                    <p:commandButton icon="pi pi-arrow-down"
+                                     action="#{positionBean.moveDown(pos)}"
+                                     update=":mainForm:positionsTable"
+                                     title="Nach unten verschieben"/>
+
+                    <!-- Bearbeiten -->
+                    <p:commandButton icon="pi pi-pencil"
+                                     action="#{positionBean.edit(pos)}"
+                                     update="@form"
+                                     title="Bearbeiten"/>
+
+                    <!-- Löschen -->
+                    <p:commandButton icon="pi pi-trash"
+                                     style=""
+                                     action="#{positionBean.delete(pos)}"
+                                     update=":mainForm:positionsTable"
+                                     title="Löschen"
+                                     styleClass="ui-button-danger"/>
+                </p:column>
+            </p:dataTable>
+        </p:panel>
+
+        <p:button value="Zurück"
+                  icon="pi pi-arrow-left"
+                  outcome="home.xhtml"
+                  styleClass="btn-back"/>
+    </h:form>
+
+    <!-- Dialog für CSV-Upload -->
+    <p:dialog header="CSV Import" widgetVar="csvImportDialog" modal="true" resizable="false">
+        <h:form id="csvForm" enctype="multipart/form-data">
+            <p:fileUpload id="csvFile" value="#{positionBean.csvFile}" mode="simple"/>
+
+            <p:commandButton value="OK" action="#{positionBean.csvImport}"
+                             update=":mainForm:positionsTable"
+                             oncomplete="PF('csvImportDialog').hide();"/>
+
+            <p:commandButton value="Abbrechen" onclick="PF('csvImportDialog').hide(); return false;"/>
+        </h:form>
+    </p:dialog>
+</h:body>
+</html>
