@@ -48,7 +48,8 @@
                                  label="E-Mail"
                                  required="true"
                                  requiredMessage="Bitte E-Mail angeben.">
-                        <f:validateRegex pattern="^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"/>
+                        <!-- <f:validateRegex pattern="^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"/> -->
+                        <f:validateRegex pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$"/>
                     </p:inputText>
 
                     <!-- Passwort -->
@@ -71,8 +72,9 @@
                                 toggleMask="true"
                                 feedback="false">
                         <!-- eigener Validator: confirm == password -->
-                        <f:validator validatorId="confirmPasswordValidator"/>
-                        <f:attribute name="otherValue" value="#{userBean.password}"/>
+                        <!-- <f:validator validatorId="confirmPasswordValidator"/>
+                         <f:attribute name="otherValue" value="#{userBean.password}"/>
+                         -->
                     </p:password>
 
                 </p:panelGrid>

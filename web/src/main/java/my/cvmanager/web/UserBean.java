@@ -48,7 +48,15 @@ public class UserBean implements Serializable {
             return "home.xhtml?faces-redirect=true";
         } catch (ValidationException e) {
             // Error handling
-            return "register.xhtml?error=true";
+            FacesContext.getCurrentInstance().addMessage(
+                    null,
+                    new FacesMessage(
+                            FacesMessage.SEVERITY_ERROR,
+                            "Registrierung fehlgeschlagen",
+                            e.getMessage()
+                    )
+            );
+            return null;
         }
     }
 

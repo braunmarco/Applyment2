@@ -4,13 +4,14 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
+import jakarta.validation.ValidationException;
 import my.cvmanager.domain.User;
 import my.cvmanager.repositories.UserDao;
 import my.cvmanager.service.exception.UserNotFoundException;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
@@ -72,6 +73,18 @@ public class UserService implements IUserService {
         user.setPassword(password); //TODO: Hashing
         user.setEmail(email);
 
+        if (userNameExists(username)) {
+            throw new ValidationException(
+                    "Der Benutzername '" + username + "' ist bereits vergeben."
+            );
+        }
+
+        if (userEmailExists(email)) {
+            throw new ValidationException(
+                    "Die E-Mail-Adresse '" + email + "' ist bereits registriert."
+            );
+        }
+
         try {
             dao.persist(user, em); // persist the user
             logger.info("User has been registered successfully");
@@ -91,14 +104,17 @@ public class UserService implements IUserService {
     @Transactional
     @Override
     public void unregister(Long userId) {
-        dao.find(userId, em).ifPresentOrElse(user -> {
+        User user = dao.find(userId, em);
+
+        if (user != null) {
             if (isAdmin(user)) {
                 logger.info("User " + user.getUsername() + " cannot be unregistered.");
             } else {
-                dao.delete(user, em);
-                logger.info("User has been unregistered successfully");
+                logger.info("User " + user.getUsername() + " has been unregistered successfully.");
             }
-        }, () -> logger.warning("User not found"));
+        } else {
+            logger.warning("User not found");
+        }
     }
 
     /**
@@ -112,11 +128,11 @@ public class UserService implements IUserService {
     @Override
     public User login(String username, String password) {
         try {
-            Optional<User> user = dao.findOne("username", username, em);
-            if (user.isPresent() && user.get().getPassword().equals(password)) {
-                user.get().setLoggedIn(true); // mark user as logged-in.
+            User user = dao.findOne("username", username, em);
+            if (user != null && user.getPassword().equals(password)) {
+                user.setLoggedIn(true); // mark user as logged-in.
 
-                return dao.update(user.get(), em); // update user
+                return dao.update(user, em); // update user
             }
         } catch (Exception ex) {
             logger.severe("Error during login: " + ex.getMessage());
@@ -133,17 +149,17 @@ public class UserService implements IUserService {
     @Transactional
     @Override
     public void logout(Long userId) {
-        Optional<User> user = dao.find(userId, em);
-        user.ifPresent(value -> {
-            value.setLoggedIn(false);
-            dao.update(value, em);
-        });
+        User user = dao.find(userId, em);
+        if (user != null) {
+            user.setLoggedIn(false);
+            dao.update(user, em);
+        }
     }
 
     /**
      * Updates the password of the user identified by the given ID.
      * <p>
-     * Internally delegates to {@link #updatePasswordInternal(Supplier, String)}
+     * Internally delegates to {@link #updatePasswordInternal(User, String)}
      * to locate the user and update the password after hashing.
      * </p>
      *
@@ -152,7 +168,8 @@ public class UserService implements IUserService {
      */
     @Transactional
     public void updatePassword(Long id, String newRawPassword) {
-        updatePasswordInternal(() -> dao.find(id, em), newRawPassword);
+        User user = dao.find(id, em);
+        updatePasswordInternal(user, newRawPassword);
     }
 
     /**
@@ -175,12 +192,12 @@ public class UserService implements IUserService {
             throw new IllegalArgumentException("Email must not be null or empty");
         }
 
-        Optional<User> user = dao.findOne("email", email, em);
-        if (user.isEmpty()) {
+        User user = dao.findOne("email", email, em);
+        if (user == null) {
             throw new UserNotFoundException("No user found with email: " + email);
         }
 
-        updatePasswordInternal(() -> dao.findOne("email", email, em), newRawPassword);
+        updatePasswordInternal(user, newRawPassword);
     }
 
     /**
@@ -191,15 +208,14 @@ public class UserService implements IUserService {
      * If no user is found, a warning is logged.
      * </p>
      *
-     * @param finder      supplier providing an {@link Optional} of the user
      * @param rawPassword the new raw password to set (will be hashed)
      */
-    private void updatePasswordInternal(Supplier<Optional<User>> finder, String rawPassword) {
-        finder.get().ifPresentOrElse(user -> {
+    private void updatePasswordInternal(User user, String rawPassword) {
+        if (user != null) {
             // immer hashen – niemals ein Raw-Passwort speichern
             user.setPassword(hash(rawPassword));
             dao.update(user, em);
-        }, () -> logger.warning("User not found"));
+        }
     }
 
     /**
@@ -241,8 +257,8 @@ public class UserService implements IUserService {
     @Transactional
     @Override
     public boolean validateCredentials(String username, String password) {
-        Optional<User> user = dao.findOne("username", username, em);
-        return user.isPresent() && user.get().getPassword().equals(password);
+        User user = dao.findOne("username", username, em);
+        return user != null && StringUtils.isEmpty(user.getPassword()) && user.getPassword().equals(password);
     }
 
     /**
@@ -253,9 +269,9 @@ public class UserService implements IUserService {
     @Transactional
     @Override
     public void sendCredentials(String email) {
-        Optional<User> user = dao.findOne("email", email, em);
-        if (user.isPresent()) {
-            String credentials = "username: " + user.get().getUsername() + " password: " + user.get().getPassword();
+        User user = dao.findOne("email", email, em);
+        if (user != null) {
+            String credentials = "username: " + user.getUsername() + " password: " + user.getPassword();
             logger.info(credentials);
             logger.info("User credentials have been sent successfully");
         }
@@ -276,13 +292,49 @@ public class UserService implements IUserService {
         params.put("email", email);
 
         try {
-            Optional<User> user = dao.findOne(params, em);
-            return user.orElse(null);
+            return dao.findOne(params, em);
         } catch (Exception ex) {
             logger.severe("Error checking if user is registered: " + ex.getMessage());
         }
 
         return null;
+    }
+
+    /**
+     * check userName exist.
+     *
+     * @param username
+     * @return
+     */
+    public boolean userNameExists(String username) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("username", username);
+        try {
+            return dao.findOne(params, em) != null;
+        } catch (Exception ex) {
+            logger.severe("Error checking if user name exists: " + ex.getMessage());
+        }
+
+        return false;
+    }
+
+    /**
+     * check email exist.
+     *
+     * @param email
+     * @return
+     */
+    public boolean userEmailExists(String email) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("email", email);
+
+        try {
+            return dao.findOne(params, em) != null;
+        } catch (Exception ex) {
+            logger.severe("Error checking if user email exists: " + ex.getMessage());
+        }
+
+        return false;
     }
 
     /**

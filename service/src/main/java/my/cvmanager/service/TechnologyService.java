@@ -8,7 +8,7 @@ import my.cvmanager.domain.Technology;
 import my.cvmanager.repositories.TechnologyDao;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 
 /**
  * Service class responsible for managing technologies.
@@ -59,9 +59,12 @@ public class TechnologyService {
      */
     @Transactional
     public void delete(Long id) {
-        Optional<Technology> tech = dao.find(id, em);
+        Technology tech = dao.find(id, em);
 
-        tech.ifPresent(technology -> em.remove(technology));
+        if (tech != null) {
+            em.remove(tech);
+            ;
+        }
     }
 
     /**
@@ -69,7 +72,14 @@ public class TechnologyService {
      *
      * @return a list of all technologies
      */
+    @Transactional
     public List<Technology> findAll() {
         return dao.loadAll(em);
+    }
+
+    @Transactional
+    public Technology findOne(Map<String, Object> attributesMap) {
+
+        return dao.findOne(attributesMap, em);
     }
 }

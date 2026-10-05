@@ -60,9 +60,11 @@ public class PositionService {
      */
     @Transactional
     public void delete(Long id) {
-        Optional<Position> pos = dao.find(id, em);
+        Position pos = dao.find(id, em);
 
-        pos.ifPresent(position -> em.remove(position));
+        if (pos != null) {
+            em.remove(pos);
+        }
     }
 
     /**
@@ -202,4 +204,10 @@ public class PositionService {
     public List<Position> findAllOrderedDown() {
         return dao.findAllOrderedDown(em);
     }
+
+    @Transactional
+    public Position findOne(Map<String, Object> attributesMap) {
+        return dao.findOne(attributesMap, em);
+    }
+
 }
