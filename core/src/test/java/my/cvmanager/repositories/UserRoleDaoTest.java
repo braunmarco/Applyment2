@@ -63,6 +63,36 @@ public class UserRoleDaoTest {
         Assertions.assertTrue(hasRole);
     }
 
+    @Test
+    void testExpiredAdminRole() {
+        // 1. Benutzer anlegen und speichern
+        User user = new User();
+        user.setUsername("marcoAdmin");
+        user.setPassword("password");
+        user.setEmail("marcoAdmin@email.de");
+        UserDao userDao = new UserDao();
+        inTransaction(() -> userDao.persist(user, entityManager));
+
+        // 2. Abgelaufene ADMIN-Rolle anlegen und speichern
+        UserRole userRole = new UserRole();
+        userRole.setRole(Role.ADMIN);
+        userRole.setUser(user);
+
+        LocalDateTime now = LocalDateTime.of(2026, 10, 12, 12, 0);
+        userRole.setValidFrom(now.minusDays(10));
+        userRole.setValidTo(now.minusDays(1));
+        inTransaction(() -> userRoleDao.persist(userRole, entityManager));
+
+        // 3. EntityManager leeren
+        entityManager.clear();
+
+        // 4. hasRole() aufrufen
+        boolean hasRole = userRoleDao.hasRole(user.getId(), Role.ADMIN, now, entityManager);
+
+        // 5. Ergebnis prüfen
+        Assertions.assertFalse(hasRole);
+    }
+
     private void inTransaction(Runnable operation) {
         EntityTransaction transaction = entityManager.getTransaction();
         transaction.begin();
