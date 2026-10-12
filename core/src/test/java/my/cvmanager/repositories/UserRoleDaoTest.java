@@ -64,7 +64,7 @@ public class UserRoleDaoTest {
     }
 
     @Test
-    void testExpiredAdminRole() {
+    public void testExpiredAdminRole() {
         User user = new User();
         user.setUsername("marcoAdmin");
         user.setPassword("password");
@@ -89,7 +89,7 @@ public class UserRoleDaoTest {
     }
 
     @Test
-    void testAdminRoleExpiresExactlyNow() {
+    public void testAdminRoleExpiresExactlyNow() {
         User user = new User();
         user.setUsername("marcoAdmin");
         user.setPassword("password");
@@ -105,6 +105,33 @@ public class UserRoleDaoTest {
 
         userRole.setValidFrom(now.minusDays(1));
         userRole.setValidTo(now);
+
+        inTransaction(() -> userRoleDao.persist(userRole, entityManager));
+
+        entityManager.clear();
+
+        boolean hasRole = userRoleDao.hasRole(user.getId(), Role.ADMIN, now, entityManager);
+
+        Assertions.assertFalse(hasRole);
+    }
+
+    @Test
+    public void testAdminRoleNotYetValid() {
+        User user = new User();
+        user.setUsername("marcoAdmin");
+        user.setPassword("password");
+        user.setEmail("marcoAdmin@email.de");
+        UserDao userDao = new UserDao();
+        inTransaction(() -> userDao.persist(user, entityManager));
+
+        UserRole userRole = new UserRole();
+        userRole.setRole(Role.ADMIN);
+        userRole.setUser(user);
+
+        LocalDateTime now = LocalDateTime.of(2026, 10, 12, 12, 0);
+
+        userRole.setValidFrom(now.plusDays(1));
+        userRole.setValidTo(now.plusDays(30));
 
         inTransaction(() -> userRoleDao.persist(userRole, entityManager));
 
