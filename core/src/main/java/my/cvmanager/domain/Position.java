@@ -108,6 +108,7 @@ public class Position {
 
     public void addTechnology(Technology technology) {
         this.technologies.add(technology);
+        technology.setPosition(this);
     }
 
     public Long getOrderIndex() {
