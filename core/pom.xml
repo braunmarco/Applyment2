@@ -75,6 +75,14 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- JSON-B implementation for standalone Hibernate tests -->
+        <dependency>
+            <groupId>org.eclipse</groupId>
+            <artifactId>yasson</artifactId>
+            <version>3.0.5</version>
+            <scope>test</scope>
+        </dependency>
+
         <!-- Logging -->
         <dependency>
             <groupId>org.slf4j</groupId>
