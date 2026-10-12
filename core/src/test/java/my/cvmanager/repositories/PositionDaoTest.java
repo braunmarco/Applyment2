@@ -12,6 +12,8 @@ import static org.junit.Assert.*;
 
 import my.cvmanager.domain.Position;
 import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /** Integration tests for PositionDao CRUD and orderIndex queries. */
 public class PositionDaoTest {
@@ -76,6 +78,37 @@ public class PositionDaoTest {
 
         assertEquals("First", dao.findAllOrdered(entityManager).get(0).getTitle());
         assertEquals("Third", dao.findAllOrdered(entityManager, PositionDao.Order.DOWN).get(0).getTitle());
+    }
+
+    @Test
+    public void shouldKeepHashCodeStableAfterPersist() {
+        Position position = newPosition("Developer", 1L);
+        Set<Position> positions = new HashSet<>();
+        positions.add(position);
+        int hashBeforePersist = position.hashCode();
+
+        inTransaction(() -> dao.persist(position, entityManager));
+
+        assertNotNull(position.getId());
+        assertEquals(hashBeforePersist, position.hashCode());
+        assertTrue(positions.contains(position));
+    }
+
+    @Test
+    public void shouldComparePositionsByPersistedIdentity() {
+        Position first = newPosition("Developer", 1L);
+        Position second = newPosition("Developer", 1L);
+        assertNotEquals(first, second);
+
+        inTransaction(() -> dao.persist(first, entityManager));
+        Long id = first.getId();
+        entityManager.clear();
+
+        Position reloaded = dao.find(id, entityManager);
+        assertNotSame(first, reloaded);
+        assertEquals(first, reloaded);
+        assertEquals(first.hashCode(), reloaded.hashCode());
+        assertNotEquals(first, second);
     }
 
     private Position newPosition(String title, long orderIndex) {
