@@ -87,6 +87,7 @@ public class UserProfile {
 
     public void addPosition(Position position) {
         this.positions.add(position);
+        position.setUser(this);
     }
 
     public String toString() {
