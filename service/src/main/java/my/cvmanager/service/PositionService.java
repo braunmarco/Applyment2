@@ -83,7 +83,7 @@ public class PositionService {
      */
     @Transactional
     public void moveDown(Position pos) {
-        List<Position> positions = findAll();
+        List<Position> positions = findAllOrderedUp();
         int index = positions.indexOf(pos);
         if (index >= 0 && index < positions.size() - 1) {
             // Position tauschen
@@ -103,7 +103,7 @@ public class PositionService {
      */
     @Transactional
     public void moveUp(Position pos) {
-        List<Position> positions = findAll();
+        List<Position> positions = findAllOrderedUp();
         int index = positions.indexOf(pos);
         if (index > 0) {
             // Position tauschen
@@ -121,7 +121,7 @@ public class PositionService {
      */
     @Transactional
     private void updateOrderIndices() {
-        List<Position> positions = findAll();
+        List<Position> positions = findAllOrderedUp();
         reindexInOrder(positions);
     }
 
@@ -144,10 +144,10 @@ public class PositionService {
      * @return max(orderIndex) + 1 or 0 if table is empty
      */
     @Transactional
-    private Integer getNextOrderIndex() {
-        Integer maxIndex = em.createQuery("SELECT MAX(p.orderIndex) FROM Position p", Integer.class)
+    private Long getNextOrderIndex() {
+        Long maxIndex = em.createQuery("SELECT MAX(p.orderIndex) FROM Position p", Long.class)
                 .getSingleResult();
-        return (maxIndex == null) ? 0 : maxIndex + 1;
+        return (maxIndex == null) ? 0L : maxIndex + 1L;
     }
 
     /**
