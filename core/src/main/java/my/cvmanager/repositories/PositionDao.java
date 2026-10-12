@@ -4,7 +4,6 @@ import jakarta.persistence.EntityManager;
 import my.cvmanager.domain.Position;
 
 import java.util.List;
-import java.util.logging.Logger;
 
 /**
  * Data Access Object (DAO) for {@link Position} entities.
@@ -16,7 +15,6 @@ import java.util.logging.Logger;
  * @see Position
  */
 public class PositionDao extends BaseDao<Position> {
-    private final Logger logger = Logger.getLogger(PositionDao.class.getCanonicalName());
 
     /**
      * Creates a DAO for {@link Position} entities.
@@ -34,7 +32,7 @@ public class PositionDao extends BaseDao<Position> {
         /** Descending order. */
         DOWN("DESC");
 
-        public String order;
+        private final String order;
 
         Order(String order) {
             this.order = order;
