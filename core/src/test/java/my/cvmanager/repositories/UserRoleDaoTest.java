@@ -15,9 +15,15 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDateTime;
 
 public class UserRoleDaoTest {
+    private static final String TEST_USERNAME = "marcoAdmin";
+    private static final String TEST_PASSWORD = "password";
+    private static final String TEST_EMAIL = "marcoAdmin@email.de";
+    private static final LocalDateTime TEST_NOW = LocalDateTime.of(2026, 10, 12, 12, 0);
+
     private EntityManagerFactory factory;
     private EntityManager entityManager;
     private UserRoleDao userRoleDao;
+
 
     @BeforeEach
     public void setUp() {
@@ -41,22 +47,17 @@ public class UserRoleDaoTest {
 
     @Test
     public void testRoleById() {
-        User user = new User();
-        user.setUsername("marcoAdmin");
-        user.setPassword("password");
-        user.setEmail("marcoAdmin@email.de");
-        UserDao userDao = new UserDao();
-        inTransaction(() -> userDao.persist(user, entityManager));
+        User user = createUser();
 
         UserRole userRole = new UserRole();
         userRole.setRole(Role.ADMIN);
         userRole.setUser(user);
 
-        LocalDateTime now = LocalDateTime.of(2026, 10, 12, 12, 0);
+        LocalDateTime now = TEST_NOW;
         userRole.setValidFrom(now.minusDays(1));
         userRole.setValidTo(now.plusDays(1));
-
         inTransaction(() -> userRoleDao.persist(userRole, entityManager));
+
         entityManager.clear();
         boolean hasRole = userRoleDao.hasRole(user.getId(), Role.ADMIN, now, entityManager);
 
@@ -65,18 +66,13 @@ public class UserRoleDaoTest {
 
     @Test
     public void testExpiredAdminRole() {
-        User user = new User();
-        user.setUsername("marcoAdmin");
-        user.setPassword("password");
-        user.setEmail("marcoAdmin@email.de");
-        UserDao userDao = new UserDao();
-        inTransaction(() -> userDao.persist(user, entityManager));
+        User user = createUser();
 
         UserRole userRole = new UserRole();
         userRole.setRole(Role.ADMIN);
         userRole.setUser(user);
 
-        LocalDateTime now = LocalDateTime.of(2026, 10, 12, 12, 0);
+        LocalDateTime now = TEST_NOW;
         userRole.setValidFrom(now.minusDays(10));
         userRole.setValidTo(now.minusDays(1));
         inTransaction(() -> userRoleDao.persist(userRole, entityManager));
@@ -90,22 +86,15 @@ public class UserRoleDaoTest {
 
     @Test
     public void testAdminRoleExpiresExactlyNow() {
-        User user = new User();
-        user.setUsername("marcoAdmin");
-        user.setPassword("password");
-        user.setEmail("marcoAdmin@email.de");
-        UserDao userDao = new UserDao();
-        inTransaction(() -> userDao.persist(user, entityManager));
+        User user = createUser();
 
         UserRole userRole = new UserRole();
         userRole.setRole(Role.ADMIN);
         userRole.setUser(user);
 
-        LocalDateTime now = LocalDateTime.of(2026, 10, 12, 12, 0);
-
+        LocalDateTime now = TEST_NOW;
         userRole.setValidFrom(now.minusDays(1));
         userRole.setValidTo(now);
-
         inTransaction(() -> userRoleDao.persist(userRole, entityManager));
 
         entityManager.clear();
@@ -117,22 +106,15 @@ public class UserRoleDaoTest {
 
     @Test
     public void testAdminRoleNotYetValid() {
-        User user = new User();
-        user.setUsername("marcoAdmin");
-        user.setPassword("password");
-        user.setEmail("marcoAdmin@email.de");
-        UserDao userDao = new UserDao();
-        inTransaction(() -> userDao.persist(user, entityManager));
+        User user = createUser();
 
         UserRole userRole = new UserRole();
         userRole.setRole(Role.ADMIN);
         userRole.setUser(user);
 
-        LocalDateTime now = LocalDateTime.of(2026, 10, 12, 12, 0);
-
+        LocalDateTime now = TEST_NOW;
         userRole.setValidFrom(now.plusDays(1));
         userRole.setValidTo(now.plusDays(30));
-
         inTransaction(() -> userRoleDao.persist(userRole, entityManager));
 
         entityManager.clear();
@@ -156,4 +138,15 @@ public class UserRoleDaoTest {
         }
     }
 
+    private User createUser() {
+        User user = new User();
+        user.setUsername(TEST_USERNAME);
+        user.setPassword(TEST_PASSWORD);
+        user.setEmail(TEST_EMAIL);
+
+        UserDao userDao = new UserDao();
+        inTransaction(() -> userDao.persist(user, entityManager));
+
+        return user;
+    }
 }
