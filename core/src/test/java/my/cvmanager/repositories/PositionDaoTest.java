@@ -4,18 +4,20 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.Persistence;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-import static org.junit.Assert.*;
-
 import my.cvmanager.domain.Position;
-import java.util.List;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
-/** Integration tests for PositionDao CRUD and orderIndex queries. */
+import static org.junit.jupiter.api.Assertions.*;
+
+/**
+ * Integration tests for PositionDao CRUD and orderIndex queries.
+ */
 public class PositionDaoTest {
     private final PositionDao dao = new PositionDao();
 
@@ -122,13 +124,13 @@ public class PositionDaoTest {
     private EntityManagerFactory factory;
     private EntityManager entityManager;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         factory = Persistence.createEntityManagerFactory("cvmanagerTestPU");
         entityManager = factory.createEntityManager();
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         if (entityManager != null) {
             if (entityManager.getTransaction().isActive()) {

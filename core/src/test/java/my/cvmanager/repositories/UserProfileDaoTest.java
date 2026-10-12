@@ -4,16 +4,16 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.Persistence;
-import my.cvmanager.domain.UserProfile;
 import my.cvmanager.domain.Position;
 import my.cvmanager.domain.Technology;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import my.cvmanager.domain.UserProfile;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Integration tests for the inherited CRUD operations of {@link UserProfileDao}.
@@ -25,14 +25,14 @@ public class UserProfileDaoTest {
     private EntityManager entityManager;
     private UserProfileDao dao;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         factory = Persistence.createEntityManagerFactory("cvmanagerTestPU");
         entityManager = factory.createEntityManager();
         dao = new UserProfileDao();
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         if (entityManager != null) {
             if (entityManager.getTransaction().isActive()) {

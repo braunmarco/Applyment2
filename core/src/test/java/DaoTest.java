@@ -1,7 +1,7 @@
 import my.cvmanager.domain.Position;
 import my.cvmanager.domain.Technology;
 import my.cvmanager.domain.UserProfile;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.util.logging.Logger;

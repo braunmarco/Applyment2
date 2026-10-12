@@ -4,15 +4,16 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.Persistence;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-import static org.junit.Assert.*;
-
 import my.cvmanager.domain.Technology;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-/** Integration tests for TechnologyDao and its persisted enum level. */
+import static org.junit.jupiter.api.Assertions.*;
+
+/**
+ * Integration tests for TechnologyDao and its persisted enum level.
+ */
 public class TechnologyDaoTest {
     private final TechnologyDao dao = new TechnologyDao();
 
@@ -64,13 +65,13 @@ public class TechnologyDaoTest {
     private EntityManagerFactory factory;
     private EntityManager entityManager;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         factory = Persistence.createEntityManagerFactory("cvmanagerTestPU");
         entityManager = factory.createEntityManager();
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         if (entityManager != null) {
             if (entityManager.getTransaction().isActive()) {
