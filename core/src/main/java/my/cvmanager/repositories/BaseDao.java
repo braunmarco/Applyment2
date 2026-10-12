@@ -71,8 +71,7 @@ public class BaseDao<T> {
      * @throws EntityNotFoundException if the entity is not found
      */
     public T update(T entity, EntityManager entityManager) {
-        return Optional.ofNullable(entityManager.merge(entity))
-                .orElseThrow(EntityNotFoundException::new);
+        return entityManager.merge(entity);
     }
 
     /**
