@@ -98,16 +98,15 @@ public class UserService implements IUserService {
     @Override
     public void unregister(Long userId) {
         User user = dao.find(userId, em);
-
-        if (user != null) {
-            if (isAdmin(user)) {
-                logger.info("User " + user.getUsername() + " cannot be unregistered.");
-            } else {
-                logger.info("User " + user.getUsername() + " has been unregistered successfully.");
-            }
-        } else {
+        if (user == null) {
             logger.warning("User not found");
+            return;
         }
+        if (isAdmin(user)) {
+            throw new IllegalStateException("Administrator account cannot be deleted");
+        }
+        dao.delete(user, em);
+        logger.info("User has been unregistered successfully");
     }
 
     /**
@@ -333,6 +332,6 @@ public class UserService implements IUserService {
      * @return true if the user is an administrator, false otherwise
      */
     public boolean isAdmin(String username, String email) {
-        return !ADMIN.equals(username);
+        return ADMIN.equals(username);
     }
 }
