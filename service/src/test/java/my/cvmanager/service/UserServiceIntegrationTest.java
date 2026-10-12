@@ -97,4 +97,34 @@ public class UserServiceIntegrationTest {
     public void unauthenticatedPasswordResetIsDisabled() {
         service.resetPassword("tester@example.test", "new-password");
     }
+    @Test
+    public void nonAdminCanBeUnregistered() {
+        User created = register("tester", "secure-test-password", "tester@example.test");
+        em.getTransaction().begin();
+        service.unregister(created.getId());
+        em.getTransaction().commit();
+        em.clear();
+        assertNull(em.find(User.class, created.getId()));
+    }
+
+    @Test
+    public void administratorCannotBeUnregistered() {
+        User created = register("admin", "secure-test-password", "admin@example.test");
+        em.getTransaction().begin();
+        try {
+            service.unregister(created.getId());
+            fail("Expected administrator deletion to be rejected");
+        } catch (IllegalStateException expected) {
+            em.getTransaction().rollback();
+        }
+        em.clear();
+        assertNotNull(em.find(User.class, created.getId()));
+    }
+
+    @Test
+    public void adminCheckMatchesOnlyAdminUsername() {
+        assertTrue(service.isAdmin("admin", "admin@example.test"));
+        assertFalse(service.isAdmin("tester", "tester@example.test"));
+    }
+
 }
