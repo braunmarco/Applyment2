@@ -8,6 +8,8 @@ import my.cvmanager.domain.Role;
 import my.cvmanager.domain.User;
 import my.cvmanager.domain.UserRole;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
@@ -17,6 +19,7 @@ public class UserRoleDaoTest {
     private EntityManager entityManager;
     private UserRoleDao userRoleDao;
 
+    @BeforeEach
     public void setUp() {
         factory = Persistence.createEntityManagerFactory("cvmanagerTestPU");
         entityManager = factory.createEntityManager();
@@ -43,8 +46,8 @@ public class UserRoleDaoTest {
         user.setPassword("password");
         user.setEmail("marcoAdmin@email.de");
         UserDao userDao = new UserDao();
-        userDao.persist(user, entityManager);
-        
+        inTransaction(() -> userDao.persist(user, entityManager));
+
         UserRole userRole = new UserRole();
         userRole.setRole(Role.ADMIN);
         userRole.setUser(user);
@@ -54,10 +57,10 @@ public class UserRoleDaoTest {
         userRole.setValidTo(now.plusDays(1));
 
         inTransaction(() -> userRoleDao.persist(userRole, entityManager));
-        Long id = userRole.getId();
         entityManager.clear();
         boolean hasRole = userRoleDao.hasRole(user.getId(), Role.ADMIN, now, entityManager);
 
+        Assertions.assertTrue(hasRole);
     }
 
     private void inTransaction(Runnable operation) {
