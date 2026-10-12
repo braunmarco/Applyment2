@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Entity
 @Table(name = "positions")
@@ -131,7 +130,7 @@ public class Position {
 
     @Override
     public int hashCode() {
-        // HashCode darf sich nie ändern -> nur die Klasse selbst
-        return Objects.hashCode(id);
+        // Stable before and after an ID is assigned by the persistence provider.
+        return Position.class.hashCode();
     }
 }
