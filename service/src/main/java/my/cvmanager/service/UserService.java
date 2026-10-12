@@ -241,7 +241,7 @@ public class UserService implements IUserService {
     @Override
     public boolean validateCredentials(String username, String password) {
         User user = dao.findOne("username", username, em);
-        return user != null && user.getPassword().equals(password);
+        return user != null && PasswordHasher.verify(password, user.getPassword());
     }
 
     /**
