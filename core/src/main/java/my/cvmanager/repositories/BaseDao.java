@@ -22,7 +22,7 @@ public class BaseDao<T> {
     private final Class<T> entityClass;
 
     /**
-     * Constructor.
+     * Creates a DAO for the given entity type.
      *
      * @param entityClass the type of the entity
      */
@@ -31,7 +31,7 @@ public class BaseDao<T> {
     }
 
     /**
-     * Persists an entity.
+     * Makes a new entity persistent.
      *
      * @param entity        the entity to persist
      * @param entityManager the EntityManager
@@ -56,7 +56,7 @@ public class BaseDao<T> {
      *
      * @param id            the ID of the entity
      * @param entityManager the EntityManager
-     * @return the entity or an empty Optional
+     * @return the entity, or {@code null} if it does not exist
      */
     public T find(Long id, EntityManager entityManager) {
         return entityManager.find(entityClass, id);
@@ -67,18 +67,18 @@ public class BaseDao<T> {
      *
      * @param entity        the entity to update
      * @param entityManager the EntityManager
-     * @return the updated entity
-     * @throws EntityNotFoundException if the entity is not found
+     * @return the managed entity returned by {@link EntityManager#merge(Object)}
      */
     public T update(T entity, EntityManager entityManager) {
         return entityManager.merge(entity);
     }
 
     /**
-     * Deletes an entity.
+     * Removes an entity, merging it first if it is detached.
      *
      * @param entity        the entity to delete
      * @param entityManager the EntityManager
+     * @throws NullPointerException if {@code entity} is {@code null}
      */
     public void delete(T entity, EntityManager entityManager) {
         if (entity == null) {
@@ -111,7 +111,7 @@ public class BaseDao<T> {
      * @param attribute     the attribute to search for
      * @param value         the value of the attribute
      * @param entityManager the EntityManager
-     * @return the entity or an empty Optional
+     * @return the first matching entity, or {@code null} if no match exists
      */
     public T findOne(String attribute, Object value, EntityManager entityManager) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
@@ -130,7 +130,7 @@ public class BaseDao<T> {
      *
      * @param params        the attributes and their values
      * @param entityManager the EntityManager
-     * @return the entity or an empty Optional
+     * @return the first matching entity, or {@code null} if no match exists
      */
     public T findOne(Map<String, Object> params, EntityManager entityManager) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
