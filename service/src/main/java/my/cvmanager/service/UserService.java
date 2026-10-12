@@ -8,11 +8,9 @@ import jakarta.validation.ValidationException;
 import my.cvmanager.domain.User;
 import my.cvmanager.repositories.UserDao;
 import my.cvmanager.service.exception.UserNotFoundException;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Supplier;
 import java.util.logging.Logger;
 
 /**
@@ -70,7 +68,7 @@ public class UserService implements IUserService {
         // create user
         User user = new User();
         user.setUsername(username);
-        user.setPassword(password); //TODO: Hashing
+        user.setPassword(PasswordHasher.hash(password));
         user.setEmail(email);
 
         if (userNameExists(username)) {
@@ -85,13 +83,8 @@ public class UserService implements IUserService {
             );
         }
 
-        try {
-            dao.persist(user, em); // persist the user
-            logger.info("User has been registered successfully");
-        } catch (Exception ex) {
-            logger.severe("Error registering user: " + ex.getMessage());
-            //TODO: Hier könnte eine spezifische Ausnahmebehandlung erfolgen
-        }
+        dao.persist(user, em);
+        logger.info("User has been registered successfully");
 
         return user;
     }
@@ -129,7 +122,7 @@ public class UserService implements IUserService {
     public User login(String username, String password) {
         try {
             User user = dao.findOne("username", username, em);
-            if (user != null && user.getPassword().equals(password)) {
+            if (user != null && PasswordHasher.verify(password, user.getPassword())) {
                 user.setLoggedIn(true); // mark user as logged-in.
 
                 return dao.update(user, em); // update user
@@ -188,16 +181,7 @@ public class UserService implements IUserService {
      */
     @Transactional
     public void resetPassword(String email, String newRawPassword) {
-        if (email == null || email.isBlank()) {
-            throw new IllegalArgumentException("Email must not be null or empty");
-        }
-
-        User user = dao.findOne("email", email, em);
-        if (user == null) {
-            throw new UserNotFoundException("No user found with email: " + email);
-        }
-
-        updatePasswordInternal(user, newRawPassword);
+        throw new UnsupportedOperationException("Password reset requires verified authorization");
     }
 
     /**
@@ -213,7 +197,7 @@ public class UserService implements IUserService {
     private void updatePasswordInternal(User user, String rawPassword) {
         if (user != null) {
             // immer hashen – niemals ein Raw-Passwort speichern
-            user.setPassword(hash(rawPassword));
+            user.setPassword(PasswordHasher.hash(rawPassword));
             dao.update(user, em);
         }
     }
@@ -229,7 +213,7 @@ public class UserService implements IUserService {
      */
     public String findNewPassword() {
         //TODO: create password generator
-        return hash("newPassword");
+        throw new UnsupportedOperationException("Password generation is not implemented");
     }
 
     /**
@@ -243,8 +227,7 @@ public class UserService implements IUserService {
      * @return the hashed password (currently just returns the raw value)
      */
     private String hash(String raw) {
-        // z.B. BCrypt
-        return raw; // Platzhalter
+        return PasswordHasher.hash(raw);
     }
 
     /**
@@ -258,7 +241,7 @@ public class UserService implements IUserService {
     @Override
     public boolean validateCredentials(String username, String password) {
         User user = dao.findOne("username", username, em);
-        return user != null && StringUtils.isEmpty(user.getPassword()) && user.getPassword().equals(password);
+        return user != null && user.getPassword().equals(password);
     }
 
     /**
@@ -269,12 +252,7 @@ public class UserService implements IUserService {
     @Transactional
     @Override
     public void sendCredentials(String email) {
-        User user = dao.findOne("email", email, em);
-        if (user != null) {
-            String credentials = "username: " + user.getUsername() + " password: " + user.getPassword();
-            logger.info(credentials);
-            logger.info("User credentials have been sent successfully");
-        }
+        throw new UnsupportedOperationException("Sending passwords is not supported");
     }
 
     /**
