@@ -5,6 +5,8 @@ import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.Persistence;
 import my.cvmanager.domain.UserProfile;
+import my.cvmanager.domain.Position;
+import my.cvmanager.domain.Technology;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -87,6 +89,42 @@ public class UserProfileDaoTest {
         entityManager.clear();
 
         assertFalse(dao.findBy(id, entityManager).isPresent());
+    }
+
+    @Test
+    public void shouldCascadePersistProfileWithPositionAndTechnology() {
+        UserProfile profile = newProfile();
+        Position position = new Position();
+        position.setTitle("Software Developer");
+        position.setOrderIndex(1L);
+        Technology technology = new Technology();
+        technology.setName("Java");
+        technology.setLevel(Technology.Level.AAA);
+
+        position.addTechnology(technology);
+        profile.addPosition(position);
+
+        assertSame(profile, position.getUser());
+        assertSame(position, technology.getPosition());
+
+        inTransaction(() -> dao.persist(profile, entityManager));
+        Long profileId = profile.getId();
+        assertNotNull(position.getId());
+        assertNotNull(technology.getId());
+
+        entityManager.clear();
+        UserProfile loaded = dao.findBy(profileId, entityManager).orElseThrow();
+        assertEquals(1, loaded.getPositions().size());
+
+        Position loadedPosition = loaded.getPositions().get(0);
+        assertEquals("Software Developer", loadedPosition.getTitle());
+        assertEquals(profileId, loadedPosition.getUser().getId());
+        assertEquals(1, loadedPosition.getTechnologies().size());
+
+        Technology loadedTechnology = loadedPosition.getTechnologies().get(0);
+        assertEquals("Java", loadedTechnology.getName());
+        assertEquals(Technology.Level.AAA, loadedTechnology.getLevel());
+        assertEquals(loadedPosition.getId(), loadedTechnology.getPosition().getId());
     }
 
     private UserProfile newProfile() {
