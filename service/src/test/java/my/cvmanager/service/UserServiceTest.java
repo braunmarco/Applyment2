@@ -80,7 +80,12 @@ public class UserServiceTest {
             return userRole;
         });
 
-        User login = userService.login(request.username(), request.password());
+        User login = inTransaction(
+                () -> userService.login(
+                        request.username(),
+                        request.password()
+                )
+        );
         Assertions.assertNull(login);
     }
 
