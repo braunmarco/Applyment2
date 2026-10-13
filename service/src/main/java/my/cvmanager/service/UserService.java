@@ -141,17 +141,19 @@ public class UserService implements IUserService {
     public User login(String username, String password) {
         try {
             User user = dao.findOne("username", username, em);
-            UserRoleDao userRoleDao = new UserRoleDao();
-            boolean hasValidUserRole = userRoleDao.hasRole(
-                    user.getId(),
-                    Role.USER,
-                    LocalDateTime.now(),
-                    em
-            );
-            if (user != null && PasswordHasher.verify(password, user.getPassword()) && hasValidUserRole) {
-                user.setLoggedIn(true); // mark user as logged-in.
+            if (user != null && PasswordHasher.verify(password, user.getPassword())) {
+                UserRoleDao userRoleDao = new UserRoleDao();
+                boolean hasValidUserRole = userRoleDao.hasRole(
+                        user.getId(),
+                        Role.USER,
+                        LocalDateTime.now(),
+                        em
+                );
 
-                return dao.update(user, em); // update user
+                if (hasValidUserRole) {
+                    user.setLoggedIn(true); // mark user as logged-in.
+                    return dao.update(user, em); // update user
+                }
             }
         } catch (Exception ex) {
             logger.severe("Error during login: " + ex.getMessage());
