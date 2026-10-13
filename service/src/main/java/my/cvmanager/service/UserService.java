@@ -5,8 +5,11 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import jakarta.validation.ValidationException;
+import my.cvmanager.domain.Role;
 import my.cvmanager.domain.User;
+import my.cvmanager.domain.UserRole;
 import my.cvmanager.repositories.UserDao;
+import my.cvmanager.repositories.UserRoleDao;
 import my.cvmanager.service.exception.UserNotFoundException;
 
 import java.util.HashMap;
@@ -85,6 +88,14 @@ public class UserService implements IUserService {
 
         dao.persist(user, em);
         logger.info("User has been registered successfully");
+
+        // set role "USER" to created user
+        UserRole userRole = new UserRole();
+        userRole.setRole(Role.USER);
+        userRole.setUser(user);
+        UserRoleDao userRoleDao = new UserRoleDao();
+        userRoleDao.persist(userRole, em);
+        logger.info("User has been granted to role 'USER'");
 
         return user;
     }
