@@ -185,11 +185,11 @@ public class UserRoleDaoTest {
         entityManager.clear();
 
         Assertions.assertTrue(
-                userRoleDao.hasRole(user.getId(), Role.USER, TEST_NOW, entityManager)
+                userRoleDao.hasRole(user.getId(), Role.USER, now, entityManager)
         );
 
         Assertions.assertFalse(
-                userRoleDao.hasRole(user.getId(), Role.ADMIN, TEST_NOW, entityManager)
+                userRoleDao.hasRole(user.getId(), Role.ADMIN, now, entityManager)
         );
     }
 
