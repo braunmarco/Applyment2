@@ -50,6 +50,11 @@ public class UserServiceTest {
         Assertions.assertTrue(hasUserRole);
     }
 
+    @Test
+    public void testLoginWithExpiredUserRole() {
+        
+    }
+
     private <T> T inTransaction(Supplier<T> action) {
         EntityTransaction tx = em.getTransaction();
         tx.begin();
