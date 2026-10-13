@@ -150,10 +150,18 @@ public class UserService implements IUserService {
                         em
                 );
 
-                if (hasValidUserRole) {
-                    user.setLoggedIn(true); // mark user as logged-in.
-                    return dao.update(user, em); // update user
+                if (!hasValidUserRole) {
+                    logger.warning(
+                            "Login verweigert: Keine gültige USER-Rolle für Benutzer-ID "
+                                    + user.getId()
+                    );
+
+                    return null;
                 }
+
+                user.setLoggedIn(true); // mark user as logged-in.
+
+                return dao.update(user, em); // update user
             }
         } catch (Exception ex) {
             logger.severe("Error during login: " + ex.getMessage());
