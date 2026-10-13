@@ -69,21 +69,28 @@ public class UserService implements IUserService {
     @Transactional
     @Override
     public User register(String username, String password, String email) {
+        RegisterUserRequest registerUserRequest = new RegisterUserRequest(username, password, email);
+
+        return register(registerUserRequest);
+    }
+
+    @Transactional
+    public User register(RegisterUserRequest request) {
         // create user
         User user = new User();
-        user.setUsername(username);
-        user.setPassword(PasswordHasher.hash(password));
-        user.setEmail(email);
+        user.setUsername(request.username());
+        user.setPassword(PasswordHasher.hash(request.password()));
+        user.setEmail(request.email());
 
-        if (userNameExists(username)) {
+        if (userNameExists(request.username())) {
             throw new ValidationException(
-                    "Der Benutzername '" + username + "' ist bereits vergeben."
+                    "Der Benutzername '" + request.username() + "' ist bereits vergeben."
             );
         }
 
-        if (userEmailExists(email)) {
+        if (userEmailExists(request.email())) {
             throw new ValidationException(
-                    "Die E-Mail-Adresse '" + email + "' ist bereits registriert."
+                    "Die E-Mail-Adresse '" + request.email() + "' ist bereits registriert."
             );
         }
 
@@ -99,11 +106,6 @@ public class UserService implements IUserService {
         logger.info("Role 'USER' has been assigned to the user");
 
         return user;
-    }
-
-    @Transactional
-    public User register(RegisterUserRequest registerUserRequest) {
-        return register(registerUserRequest.username(), registerUserRequest.password(), registerUserRequest.email());
     }
 
     /**
