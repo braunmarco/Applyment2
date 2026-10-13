@@ -16,6 +16,27 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class UserDaoTest {
     private final UserDao dao = new UserDao();
+    private EntityManagerFactory factory;
+    private EntityManager entityManager;
+
+    @BeforeEach
+    public void setUp() {
+        factory = Persistence.createEntityManagerFactory("cvmanagerTestPU");
+        entityManager = factory.createEntityManager();
+    }
+
+    @AfterEach
+    public void tearDown() {
+        if (entityManager != null) {
+            if (entityManager.getTransaction().isActive()) {
+                entityManager.getTransaction().rollback();
+            }
+            entityManager.close();
+        }
+        if (factory != null) {
+            factory.close();
+        }
+    }
 
     @Test
     public void shouldCreateAndReadUser() {
@@ -59,28 +80,6 @@ public class UserDaoTest {
         user.setPassword("test-only-password");
         user.setEmail("test@example.invalid");
         return user;
-    }
-
-    private EntityManagerFactory factory;
-    private EntityManager entityManager;
-
-    @BeforeEach
-    public void setUp() {
-        factory = Persistence.createEntityManagerFactory("cvmanagerTestPU");
-        entityManager = factory.createEntityManager();
-    }
-
-    @AfterEach
-    public void tearDown() {
-        if (entityManager != null) {
-            if (entityManager.getTransaction().isActive()) {
-                entityManager.getTransaction().rollback();
-            }
-            entityManager.close();
-        }
-        if (factory != null) {
-            factory.close();
-        }
     }
 
     private void inTransaction(Runnable action) {
