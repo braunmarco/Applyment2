@@ -34,7 +34,7 @@ public class UserRoleDao extends BaseDao<UserRole> {
     public UserRole findByUserIdAndRole(Long userId, Role role, EntityManager entityManager) {
         TypedQuery<UserRole> query = entityManager.createQuery(
                 "SELECT ur from UserRole ur\n" +
-                        "WHERE ur.id = :userId\n" +
+                        "WHERE ur.user.id = :userId\n" +
                         "AND ur.role = :role", UserRole.class
         );
 
