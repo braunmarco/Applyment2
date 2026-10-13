@@ -100,6 +100,10 @@ public class UserService implements IUserService {
         return user;
     }
 
+    public User register(User user) {
+        return register(user.getUsername(), user.getPassword(), user.getEmail());
+    }
+
     /**
      * Unregisters the user with the given user ID.
      *

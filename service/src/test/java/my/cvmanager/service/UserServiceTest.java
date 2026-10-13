@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 
 public class UserServiceTest {
     //private Logger logger = Logger.getLogger(UserServiceTest.class.getName());
+    private LocalDateTime TEST_NOW = LocalDateTime.now();
     private EntityManagerFactory emf;
     private EntityManager em;
     private UserService userService;
@@ -36,19 +37,18 @@ public class UserServiceTest {
 
     @Test
     public void testRegisterAssignUserRole() {
-        em.getTransaction().begin();
-        User user = userService.register(
-                "testUser",
-                "testPwd1234!",
-                "testUser@example.com");
-        em.getTransaction().commit();
+        User user = new User();
+        user.setUsername("testUser");
+        user.setPassword("testPwd1234!");
+        user.setEmail("testUser@example.com");
 
+        inTransaction(() -> userService.register(user));
         Assertions.assertNotNull(user.getId());
 
         em.clear();
 
         UserRoleDao userRoleDao = new UserRoleDao();
-        boolean hasUserRole = userRoleDao.hasRole(user.getId(), Role.USER, LocalDateTime.now(), em);
+        boolean hasUserRole = userRoleDao.hasRole(user.getId(), Role.USER, TEST_NOW, em);
         Assertions.assertTrue(hasUserRole);
     }
 
