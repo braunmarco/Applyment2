@@ -49,14 +49,15 @@ public class UserRoleDaoTest {
     public void testRoleById() {
         User user = createUser();
 
-        UserRole userRole = new UserRole();
-        userRole.setRole(Role.ADMIN);
-        userRole.setUser(user);
+        UserRole adminRole = new UserRole();
+        adminRole.setRole(Role.ADMIN);
+        adminRole.setUser(user);
 
         LocalDateTime now = TEST_NOW;
-        userRole.setValidFrom(now.minusDays(1));
-        userRole.setValidTo(now.plusDays(1));
-        inTransaction(() -> userRoleDao.persist(userRole, entityManager));
+        adminRole.setValidFrom(now.minusDays(1));
+        adminRole.setValidTo(now.plusDays(1));
+
+        inTransaction(() -> userRoleDao.persist(adminRole, entityManager));
 
         entityManager.clear();
         boolean hasRole = userRoleDao.hasRole(user.getId(), Role.ADMIN, now, entityManager);
@@ -68,14 +69,15 @@ public class UserRoleDaoTest {
     public void testExpiredAdminRole() {
         User user = createUser();
 
-        UserRole userRole = new UserRole();
-        userRole.setRole(Role.ADMIN);
-        userRole.setUser(user);
+        UserRole adminRole = new UserRole();
+        adminRole.setRole(Role.ADMIN);
+        adminRole.setUser(user);
 
         LocalDateTime now = TEST_NOW;
-        userRole.setValidFrom(now.minusDays(10));
-        userRole.setValidTo(now.minusDays(1));
-        inTransaction(() -> userRoleDao.persist(userRole, entityManager));
+        adminRole.setValidFrom(now.minusDays(10));
+        adminRole.setValidTo(now.minusDays(1));
+
+        inTransaction(() -> userRoleDao.persist(adminRole, entityManager));
 
         entityManager.clear();
 
@@ -88,14 +90,14 @@ public class UserRoleDaoTest {
     public void testAdminRoleExpiresExactlyNow() {
         User user = createUser();
 
-        UserRole userRole = new UserRole();
-        userRole.setRole(Role.ADMIN);
-        userRole.setUser(user);
+        UserRole adminRole = new UserRole();
+        adminRole.setRole(Role.ADMIN);
+        adminRole.setUser(user);
 
         LocalDateTime now = TEST_NOW;
-        userRole.setValidFrom(now.minusDays(1));
-        userRole.setValidTo(now);
-        inTransaction(() -> userRoleDao.persist(userRole, entityManager));
+        adminRole.setValidFrom(now.minusDays(1));
+        adminRole.setValidTo(now);
+        inTransaction(() -> userRoleDao.persist(adminRole, entityManager));
 
         entityManager.clear();
 
@@ -108,14 +110,14 @@ public class UserRoleDaoTest {
     public void testAdminRoleNotYetValid() {
         User user = createUser();
 
-        UserRole userRole = new UserRole();
-        userRole.setRole(Role.ADMIN);
-        userRole.setUser(user);
+        UserRole adminRole = new UserRole();
+        adminRole.setRole(Role.ADMIN);
+        adminRole.setUser(user);
 
         LocalDateTime now = TEST_NOW;
-        userRole.setValidFrom(now.plusDays(1));
-        userRole.setValidTo(now.plusDays(30));
-        inTransaction(() -> userRoleDao.persist(userRole, entityManager));
+        adminRole.setValidFrom(now.plusDays(1));
+        adminRole.setValidTo(now.plusDays(30));
+        inTransaction(() -> userRoleDao.persist(adminRole, entityManager));
 
         entityManager.clear();
 
@@ -128,11 +130,11 @@ public class UserRoleDaoTest {
     public void testAdminRoleUnlimitedValid() {
         User user = createUser();
 
-        UserRole userRole = new UserRole();
-        userRole.setRole(Role.ADMIN);
-        userRole.setUser(user);
+        UserRole adminRole = new UserRole();
+        adminRole.setRole(Role.ADMIN);
+        adminRole.setUser(user);
 
-        inTransaction(() -> userRoleDao.persist(userRole, entityManager));
+        inTransaction(() -> userRoleDao.persist(adminRole, entityManager));
 
         entityManager.clear();
 
@@ -156,6 +158,39 @@ public class UserRoleDaoTest {
         boolean hasRole = userRoleDao.hasRole(user.getId(), Role.ADMIN, TEST_NOW, entityManager);
 
         Assertions.assertFalse(hasRole);
+    }
+
+    @Test
+    public void testUserRoleWithExpiredAdminRole() {
+        User user = createUser();
+        LocalDateTime now = TEST_NOW;
+
+        UserRole userRole = new UserRole();
+        userRole.setRole(Role.USER);
+        userRole.setUser(user);
+
+        UserRole adminRole = new UserRole();
+        adminRole.setRole(Role.ADMIN);
+        adminRole.setUser(user);
+        adminRole.setValidFrom(now.minusDays(1));
+        adminRole.setValidTo(now);
+
+
+        inTransaction(() -> {
+                    userRoleDao.persist(userRole, entityManager);
+                    userRoleDao.persist(adminRole, entityManager);
+                }
+        );
+
+        entityManager.clear();
+
+        Assertions.assertTrue(
+                userRoleDao.hasRole(user.getId(), Role.USER, TEST_NOW, entityManager)
+        );
+
+        Assertions.assertFalse(
+                userRoleDao.hasRole(user.getId(), Role.ADMIN, TEST_NOW, entityManager)
+        );
     }
 
     private void inTransaction(Runnable operation) {
