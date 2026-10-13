@@ -79,6 +79,8 @@ public class UserServiceTest {
 
             return userRole;
         });
+
+        User login = userService.login(user.getUsername(), user.getPassword());
     }
 
     private <T> T inTransaction(Supplier<T> action) {
