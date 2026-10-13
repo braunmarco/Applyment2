@@ -141,6 +141,22 @@ public class UserRoleDaoTest {
         Assertions.assertTrue(hasRole);
     }
 
+    @Test
+    public void testUserRoleDoesNotGrantAdminAccess() {
+        User user = createUser();
+
+        UserRole userRole = new UserRole();
+        userRole.setRole(Role.USER);
+        userRole.setUser(user);
+
+        inTransaction(() -> userRoleDao.persist(userRole, entityManager));
+
+        entityManager.clear();
+
+        boolean hasRole = userRoleDao.hasRole(user.getId(), Role.ADMIN, TEST_NOW, entityManager);
+
+        Assertions.assertFalse(hasRole);
+    }
 
     private void inTransaction(Runnable operation) {
         EntityTransaction transaction = entityManager.getTransaction();
