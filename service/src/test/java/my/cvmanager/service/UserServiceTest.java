@@ -6,6 +6,7 @@ import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.Persistence;
 import my.cvmanager.domain.Role;
 import my.cvmanager.domain.User;
+import my.cvmanager.domain.UserRole;
 import my.cvmanager.repositories.UserRoleDao;
 import my.cvmanager.service.dto.RegisterUserRequest;
 import org.junit.jupiter.api.AfterEach;
@@ -52,7 +53,32 @@ public class UserServiceTest {
 
     @Test
     public void testLoginWithExpiredUserRole() {
-        
+        RegisterUserRequest request =
+                new RegisterUserRequest(
+                        "testUser",
+                        "testPwd1234!",
+                        "testUser@example.com"
+                );
+
+        User user = inTransaction(
+                () -> userService.register(request)
+        );
+
+        inTransaction(() -> {
+            UserRoleDao userRoleDao = new UserRoleDao();
+
+            UserRole userRole = userRoleDao.findByUserIdAndRole(
+                    user.getId(),
+                    Role.USER,
+                    em
+            );
+
+            userRole.setValidTo(
+                    LocalDateTime.now().minusDays(1)
+            );
+
+            return userRole;
+        });
     }
 
     private <T> T inTransaction(Supplier<T> action) {
