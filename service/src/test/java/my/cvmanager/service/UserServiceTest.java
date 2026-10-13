@@ -80,7 +80,8 @@ public class UserServiceTest {
             return userRole;
         });
 
-        User login = userService.login(user.getUsername(), user.getPassword());
+        User login = userService.login(request.username(), request.password());
+        Assertions.assertNull(login);
     }
 
     private <T> T inTransaction(Supplier<T> action) {
