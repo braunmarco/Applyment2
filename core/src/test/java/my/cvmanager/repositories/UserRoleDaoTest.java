@@ -124,6 +124,24 @@ public class UserRoleDaoTest {
         Assertions.assertFalse(hasRole);
     }
 
+    @Test
+    public void testAdminRoleUnlimitedValid() {
+        User user = createUser();
+
+        UserRole userRole = new UserRole();
+        userRole.setRole(Role.ADMIN);
+        userRole.setUser(user);
+
+        inTransaction(() -> userRoleDao.persist(userRole, entityManager));
+
+        entityManager.clear();
+
+        boolean hasRole = userRoleDao.hasRole(user.getId(), Role.ADMIN, TEST_NOW, entityManager);
+
+        Assertions.assertTrue(hasRole);
+    }
+
+
     private void inTransaction(Runnable operation) {
         EntityTransaction transaction = entityManager.getTransaction();
         transaction.begin();
