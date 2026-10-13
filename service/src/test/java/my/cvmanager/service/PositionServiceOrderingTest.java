@@ -4,21 +4,21 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 import my.cvmanager.domain.Position;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class PositionServiceOrderingTest {
     private EntityManagerFactory emf;
     private EntityManager em;
     private PositionService service;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         emf = Persistence.createEntityManagerFactory("cvmanagerTestPU");
         em = emf.createEntityManager();
@@ -28,7 +28,7 @@ public class PositionServiceOrderingTest {
         field.set(service, em);
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         if (em != null) em.close();
         if (emf != null) emf.close();

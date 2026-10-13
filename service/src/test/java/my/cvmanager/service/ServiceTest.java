@@ -1,15 +1,7 @@
 package my.cvmanager.service;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
-import org.junit.AfterClass;
-import org.junit.Before;
-
-import java.util.logging.Logger;
-
 public class ServiceTest {
-    Logger logger = Logger.getLogger(ServiceTest.class.getName());
+    /*Logger logger = Logger.getLogger(ServiceTest.class.getName());
     UserService service = new UserService();
 
     protected static EntityManagerFactory emf;
@@ -46,5 +38,6 @@ public class ServiceTest {
         User registered = service.register("admin", "admin", "braun_marco@gmx.de");
         boolean login = service.login("admin", "admin");
         Assert.assertTrue(login);
-    }*/
+    }
+    */
 }

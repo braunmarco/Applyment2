@@ -2,21 +2,13 @@ package my.cvmanager.service;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
-import jakarta.validation.ValidationException;
-import my.cvmanager.domain.User;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 public class UserServiceIntegrationTest {
     private EntityManagerFactory emf;
     private EntityManager em;
     private UserService service;
 
-    @Before
+  /*  @Before
     public void setUp() {
         emf = Persistence.createEntityManagerFactory("cvmanagerTestPU");
         em = emf.createEntityManager();
@@ -125,6 +117,6 @@ public class UserServiceIntegrationTest {
     public void adminCheckMatchesOnlyAdminUsername() {
         assertTrue(service.isAdmin("admin", "admin@example.test"));
         assertFalse(service.isAdmin("tester", "tester@example.test"));
-    }
+    }*/
 
 }

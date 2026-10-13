@@ -95,7 +95,7 @@ public class UserService implements IUserService {
         userRole.setUser(user);
         UserRoleDao userRoleDao = new UserRoleDao();
         userRoleDao.persist(userRole, em);
-        logger.info("User has been granted to role 'USER'");
+        logger.info("Role 'USER' has been assigned to the user");
 
         return user;
     }
