@@ -10,6 +10,7 @@ import my.cvmanager.domain.User;
 import my.cvmanager.domain.UserRole;
 import my.cvmanager.repositories.UserDao;
 import my.cvmanager.repositories.UserRoleDao;
+import my.cvmanager.service.dto.RegisterUserRequest;
 import my.cvmanager.service.exception.UserNotFoundException;
 
 import java.util.HashMap;
@@ -100,8 +101,9 @@ public class UserService implements IUserService {
         return user;
     }
 
-    public User register(User user) {
-        return register(user.getUsername(), user.getPassword(), user.getEmail());
+    @Transactional
+    public User register(RegisterUserRequest registerUserRequest) {
+        return register(registerUserRequest.username(), registerUserRequest.password(), registerUserRequest.email());
     }
 
     /**

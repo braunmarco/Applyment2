@@ -7,12 +7,14 @@ import jakarta.persistence.Persistence;
 import my.cvmanager.domain.Role;
 import my.cvmanager.domain.User;
 import my.cvmanager.repositories.UserRoleDao;
+import my.cvmanager.service.dto.RegisterUserRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
+import java.util.function.Supplier;
 
 public class UserServiceTest {
     //private Logger logger = Logger.getLogger(UserServiceTest.class.getName());
@@ -37,12 +39,8 @@ public class UserServiceTest {
 
     @Test
     public void testRegisterAssignUserRole() {
-        User user = new User();
-        user.setUsername("testUser");
-        user.setPassword("testPwd1234!");
-        user.setEmail("testUser@example.com");
-
-        inTransaction(() -> userService.register(user));
+        RegisterUserRequest registerUserRequest = new RegisterUserRequest("testUser", "testPwd1234!", "testUser@example.com");
+        User user = inTransaction(() -> userService.register(registerUserRequest));
         Assertions.assertNotNull(user.getId());
 
         em.clear();
@@ -52,12 +50,13 @@ public class UserServiceTest {
         Assertions.assertTrue(hasUserRole);
     }
 
-    private void inTransaction(Runnable action) {
+    private <T> T inTransaction(Supplier<T> action) {
         EntityTransaction tx = em.getTransaction();
         tx.begin();
         try {
-            action.run();
+            T result = action.get();
             tx.commit();
+            return result;
         } catch (RuntimeException | Error e) {
             if (tx.isActive()) {
                 tx.rollback();
