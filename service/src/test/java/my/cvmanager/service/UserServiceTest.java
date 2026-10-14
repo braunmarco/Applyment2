@@ -114,7 +114,7 @@ public class UserServiceTest {
         User user = registerTestUserWithRoleExpiry(TEST_NOW.plusDays(10), TEST_NOW.plusDays(12));
         User login = inTransaction(
                 () -> userService.login(
-                        "unknownUser",
+                        TEST_USERNAME,
                         TEST_PWD_1234
                 )
         );
