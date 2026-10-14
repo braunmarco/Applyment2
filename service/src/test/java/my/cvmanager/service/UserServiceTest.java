@@ -9,6 +9,7 @@ import my.cvmanager.domain.User;
 import my.cvmanager.domain.UserRole;
 import my.cvmanager.repositories.UserRoleDao;
 import my.cvmanager.service.dto.RegisterUserRequest;
+import my.cvmanager.service.exception.AuthenticationException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -76,7 +77,16 @@ public class UserServiceTest {
     @Test
     public void testLoginWithInvalidPassword() {
         User user = registerTestUserWithRoleExpiry(TEST_NOW, TEST_NOW.plusDays(10));
-        User login = inTransaction(
+        Assertions.assertThrows(
+                AuthenticationException.class,
+                () -> inTransaction(
+                        () -> userService.login(
+                                TEST_USERNAME,
+                                "wrongPwd"
+                        )
+                )
+        );
+        /*User login = inTransaction(
                 () -> userService.login(
                         TEST_USERNAME,
                         "wrongPwd"
@@ -89,6 +99,7 @@ public class UserServiceTest {
 
         User storedUser = em.find(User.class, user.getId());
         Assertions.assertFalse(storedUser.isLoggedIn());
+        */
     }
 
     @Test

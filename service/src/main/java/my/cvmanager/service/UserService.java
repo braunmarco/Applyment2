@@ -11,11 +11,14 @@ import my.cvmanager.domain.UserRole;
 import my.cvmanager.repositories.UserDao;
 import my.cvmanager.repositories.UserRoleDao;
 import my.cvmanager.service.dto.RegisterUserRequest;
+import my.cvmanager.service.exception.AuthenticationException;
+import my.cvmanager.service.exception.AuthenticationServiceException;
 import my.cvmanager.service.exception.UserNotFoundException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -163,8 +166,20 @@ public class UserService implements IUserService {
 
                 return dao.update(user, em); // update user
             }
+        } catch (AuthenticationException authEx) {
+            logger.warning("Authentifizierung fehlgeschlagen");
+            throw authEx;
         } catch (Exception ex) {
-            logger.severe("Error during login: " + ex.getMessage());
+            logger.log(
+                    Level.SEVERE,
+                    "Technischer Fehler während der Authentifizierung",
+                    ex
+            );
+
+            throw new AuthenticationServiceException(
+                    "Anmeldung aufgrund eines technischen Fehlers nicht möglich",
+                    ex
+            );
         }
 
         return null;
