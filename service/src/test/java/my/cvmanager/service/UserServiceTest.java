@@ -19,10 +19,10 @@ import java.util.function.Supplier;
 
 public class UserServiceTest {
     //private Logger logger = Logger.getLogger(UserServiceTest.class.getName());
-    public static final String TEST_USERNAME = "testUser";
-    public static final String TEST_PWD_1234 = "testPwd1234!";
-    public static final String TEST_USER_MAIL = "testUser@example.com";
-    private LocalDateTime TEST_NOW = LocalDateTime.now();
+    private static final String TEST_USERNAME = "testUser";
+    private static final String TEST_PWD_1234 = "testPwd1234!";
+    private static final String TEST_USER_MAIL = "testUser@example.com";
+    private static final LocalDateTime TEST_NOW = LocalDateTime.now();
     private EntityManagerFactory emf;
     private EntityManager em;
     private UserService userService;
@@ -43,7 +43,7 @@ public class UserServiceTest {
 
     @Test
     public void testRegisterAssignUserRole() {
-        RegisterUserRequest registerUserRequest = new RegisterUserRequest("testUser", TEST_PWD_1234 + "!", TEST_USER_MAIL);
+        RegisterUserRequest registerUserRequest = new RegisterUserRequest("testUser", TEST_PWD_1234, TEST_USER_MAIL);
         User user = inTransaction(() -> userService.register(registerUserRequest));
         Assertions.assertNotNull(user.getId());
 
@@ -56,7 +56,7 @@ public class UserServiceTest {
 
     @Test
     public void testLoginWithExpiredUserRole() {
-        User user = registerTestUser(LocalDateTime.now().minusDays(1));
+        User user = registerTestUserWithRoleExpiry(LocalDateTime.now().minusDays(1));
 
         User login = inTransaction(
                 () -> userService.login(
@@ -75,7 +75,7 @@ public class UserServiceTest {
 
     @Test
     public void testLoginWithValidUserRole() {
-        User user = registerTestUser(LocalDateTime.now().plusDays(10));
+        User user = registerTestUserWithRoleExpiry(LocalDateTime.now().plusDays(10));
 
         User login = inTransaction(
                 () -> userService.login(
@@ -92,7 +92,7 @@ public class UserServiceTest {
         Assertions.assertTrue(storedUser.isLoggedIn());
     }
 
-    private User registerTestUser(LocalDateTime dateTime) {
+    private User registerTestUserWithRoleExpiry(LocalDateTime dateTime) {
         RegisterUserRequest request = new RegisterUserRequest(
                 TEST_USERNAME,
                 TEST_PWD_1234,
