@@ -1,6 +1,7 @@
 package my.cvmanager.service;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
@@ -50,7 +51,12 @@ public class UserService implements IUserService {
     /**
      * The user data provider instance for this class.
      */
-    private final UserDao dao = new UserDao();
+    private final UserDao userDao;
+
+    /**
+     * the userRole data provider instance for this class
+     */
+    private final UserRoleDao userRoleDao;
 
     /**
      * Sets the entity manager instance for this class.
@@ -60,6 +66,12 @@ public class UserService implements IUserService {
      */
     void setEntityManager(EntityManager em) {
         this.em = em;
+    }
+
+    @Inject
+    public UserService(UserDao userDao, UserRoleDao userRoleDao) {
+        this.userDao = userDao;
+        this.userRoleDao = userRoleDao;
     }
 
     /**
@@ -98,14 +110,14 @@ public class UserService implements IUserService {
             );
         }
 
-        dao.persist(user, em);
+        userDao.persist(user, em);
         logger.info("User has been registered successfully");
 
         // set role "USER" to created user
         UserRole userRole = new UserRole();
         userRole.setRole(Role.USER);
         userRole.setUser(user);
-        UserRoleDao userRoleDao = new UserRoleDao();
+
         userRoleDao.persist(userRole, em);
         logger.info("Role 'USER' has been assigned to the user");
 
@@ -120,7 +132,7 @@ public class UserService implements IUserService {
     @Transactional
     @Override
     public void unregister(Long userId) {
-        User user = dao.find(userId, em);
+        User user = userDao.find(userId, em);
         if (user == null) {
             logger.warning("User not found");
             return;
@@ -128,7 +140,7 @@ public class UserService implements IUserService {
         if (isAdmin(user)) {
             throw new IllegalStateException("Administrator account cannot be deleted");
         }
-        dao.delete(user, em);
+        userDao.delete(user, em);
         logger.info("User has been unregistered successfully");
     }
 
@@ -143,7 +155,7 @@ public class UserService implements IUserService {
     @Override
     public User login(String username, String password) {
         try {
-            User user = dao.findOne("username", username, em);
+            User user = userDao.findOne("username", username, em);
 
             if (user == null || !PasswordHasher.verify(password, user.getPassword())) {
                 throw new AuthenticationException(
@@ -151,7 +163,6 @@ public class UserService implements IUserService {
                 );
             }
 
-            UserRoleDao userRoleDao = new UserRoleDao();
             boolean hasValidUserRole = userRoleDao.hasRole(
                     user.getId(),
                     Role.USER,
@@ -172,7 +183,7 @@ public class UserService implements IUserService {
 
             user.setLoggedIn(true); // mark user as logged-in.
 
-            return dao.update(user, em); // update user
+            return userDao.update(user, em); // update user
         } catch (AuthenticationException authEx) {
             logger.warning("Authentifizierung fehlgeschlagen");
             throw authEx;
@@ -198,10 +209,10 @@ public class UserService implements IUserService {
     @Transactional
     @Override
     public void logout(Long userId) {
-        User user = dao.find(userId, em);
+        User user = userDao.find(userId, em);
         if (user != null) {
             user.setLoggedIn(false);
-            dao.update(user, em);
+            userDao.update(user, em);
         }
     }
 
@@ -217,7 +228,7 @@ public class UserService implements IUserService {
      */
     @Transactional
     public void updatePassword(Long id, String newRawPassword) {
-        User user = dao.find(id, em);
+        User user = userDao.find(id, em);
         updatePasswordInternal(user, newRawPassword);
     }
 
@@ -254,7 +265,7 @@ public class UserService implements IUserService {
         if (user != null) {
             // immer hashen – niemals ein Raw-Passwort speichern
             user.setPassword(PasswordHasher.hash(rawPassword));
-            dao.update(user, em);
+            userDao.update(user, em);
         }
     }
 
@@ -296,7 +307,7 @@ public class UserService implements IUserService {
     @Transactional
     @Override
     public boolean validateCredentials(String username, String password) {
-        User user = dao.findOne("username", username, em);
+        User user = userDao.findOne("username", username, em);
         return user != null && PasswordHasher.verify(password, user.getPassword());
     }
 
@@ -326,7 +337,7 @@ public class UserService implements IUserService {
         params.put("email", email);
 
         try {
-            return dao.findOne(params, em);
+            return userDao.findOne(params, em);
         } catch (Exception ex) {
             logger.severe("Error checking if user is registered: " + ex.getMessage());
         }
@@ -344,7 +355,7 @@ public class UserService implements IUserService {
         Map<String, Object> params = new HashMap<>();
         params.put("username", username);
         try {
-            return dao.findOne(params, em) != null;
+            return userDao.findOne(params, em) != null;
         } catch (Exception ex) {
             logger.severe("Error checking if user name exists: " + ex.getMessage());
         }
@@ -363,7 +374,7 @@ public class UserService implements IUserService {
         params.put("email", email);
 
         try {
-            return dao.findOne(params, em) != null;
+            return userDao.findOne(params, em) != null;
         } catch (Exception ex) {
             logger.severe("Error checking if user email exists: " + ex.getMessage());
         }

@@ -7,6 +7,7 @@ import jakarta.persistence.Persistence;
 import my.cvmanager.domain.Role;
 import my.cvmanager.domain.User;
 import my.cvmanager.domain.UserRole;
+import my.cvmanager.repositories.UserDao;
 import my.cvmanager.repositories.UserRoleDao;
 import my.cvmanager.service.dto.RegisterUserRequest;
 import my.cvmanager.service.exception.AuthenticationException;
@@ -32,7 +33,11 @@ public class UserServiceTest {
     public void setUp() {
         emf = Persistence.createEntityManagerFactory("cvmanagerTestPU");
         em = emf.createEntityManager();
-        userService = new UserService();
+
+        UserDao userDao = new UserDao();
+        UserRoleDao userRoleDao = new UserRoleDao();
+
+        userService = new UserService(userDao, userRoleDao);
         userService.setEntityManager(em);
     }
 
