@@ -22,7 +22,7 @@ public class UserServiceTest {
     private static final String TEST_USERNAME = "testUser";
     private static final String TEST_PWD_1234 = "testPwd1234!";
     private static final String TEST_USER_MAIL = "testUser@example.com";
-    private static final LocalDateTime TEST_NOW = LocalDateTime.now();
+    private static final LocalDateTime TEST_NOW = LocalDateTime.of(2026, 10, 14, 12, 0);
     private EntityManagerFactory emf;
     private EntityManager em;
     private UserService userService;
@@ -56,7 +56,7 @@ public class UserServiceTest {
 
     @Test
     public void testLoginWithExpiredUserRole() {
-        User user = registerTestUserWithRoleExpiry(LocalDateTime.now().minusDays(1));
+        User user = registerTestUserWithRoleExpiry(TEST_NOW.minusDays(1));
 
         User login = inTransaction(
                 () -> userService.login(
@@ -75,7 +75,7 @@ public class UserServiceTest {
 
     @Test
     public void testLoginWithValidUserRole() {
-        User user = registerTestUserWithRoleExpiry(LocalDateTime.now().plusDays(10));
+        User user = registerTestUserWithRoleExpiry(TEST_NOW.plusDays(10));
 
         User login = inTransaction(
                 () -> userService.login(
