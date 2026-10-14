@@ -59,7 +59,7 @@ public class UserServiceTest {
     public void testLoginWithExpiredUserRole() {
         User user = registerTestUserWithRoleExpiry(TEST_NOW, TEST_NOW.minusDays(1));
 
-        User login = inTransaction(
+        /*User login = inTransaction(
                 () -> userService.login(
                         TEST_USERNAME,
                         TEST_PWD_1234
@@ -71,7 +71,16 @@ public class UserServiceTest {
         em.clear();
 
         User storedUser = em.find(User.class, user.getId());
-        Assertions.assertFalse(storedUser.isLoggedIn());
+        Assertions.assertFalse(storedUser.isLoggedIn());*/
+        Assertions.assertThrows(
+                AuthenticationException.class,
+                () -> inTransaction(
+                        () -> userService.login(
+                                TEST_USERNAME,
+                                TEST_PWD_1234
+                        )
+                )
+        );
     }
 
     @Test
@@ -160,9 +169,9 @@ public class UserServiceTest {
 
     @Test
     public void testLoginWithValidUserRole() {
-        registerTestUserWithRoleExpiry(TEST_NOW, TEST_NOW.plusDays(12));
+        User user = registerTestUserWithRoleExpiry(TEST_NOW, TEST_NOW.plusDays(12));
 
-        /*User login = inTransaction(
+        User login = inTransaction(
                 () -> userService.login(
                         TEST_USERNAME,
                         TEST_PWD_1234
@@ -174,17 +183,7 @@ public class UserServiceTest {
         em.clear();
 
         User storedUser = em.find(User.class, user.getId());
-        Assertions.assertTrue(storedUser.isLoggedIn());*/
-
-        Assertions.assertThrows(
-                AuthenticationException.class,
-                () -> inTransaction(
-                        () -> userService.login(
-                                TEST_USERNAME,
-                                TEST_PWD_1234
-                        )
-                )
-        );
+        Assertions.assertTrue(storedUser.isLoggedIn());
     }
 
     private User registerTestUserWithRoleExpiry(LocalDateTime from, LocalDateTime to) {

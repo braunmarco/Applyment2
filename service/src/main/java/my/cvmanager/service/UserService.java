@@ -165,7 +165,9 @@ public class UserService implements IUserService {
                                 + user.getId()
                 );
 
-                return null;
+                throw new AuthenticationException(
+                        "Keine gültige USER-Rolle vorhanden"
+                );
             }
 
             user.setLoggedIn(true); // mark user as logged-in.
