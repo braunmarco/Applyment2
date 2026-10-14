@@ -95,6 +95,50 @@ public class UserServiceTest {
         Assertions.assertFalse(storedUser.isLoggedIn());
     }
 
+    @Test
+    public void testLoginWithValidUserRole() {
+        RegisterUserRequest request =
+                new RegisterUserRequest(
+                        "testUser",
+                        "testPwd1234!",
+                        "testUser@example.com"
+                );
+
+        User user = inTransaction(
+                () -> userService.register(request)
+        );
+
+        inTransaction(() -> {
+            UserRoleDao userRoleDao = new UserRoleDao();
+
+            UserRole userRole = userRoleDao.findByUserIdAndRole(
+                    user.getId(),
+                    Role.USER,
+                    em
+            );
+
+            userRole.setValidTo(
+                    LocalDateTime.now().plusDays(10)
+            );
+
+            return userRole;
+        });
+
+        User login = inTransaction(
+                () -> userService.login(
+                        request.username(),
+                        request.password()
+                )
+        );
+
+        Assertions.assertNotNull(login);
+
+        em.clear();
+
+        User storedUser = em.find(User.class, user.getId());
+        Assertions.assertTrue(storedUser.isLoggedIn());
+    }
+
     private <T> T inTransaction(Supplier<T> action) {
         EntityTransaction tx = em.getTransaction();
         tx.begin();
