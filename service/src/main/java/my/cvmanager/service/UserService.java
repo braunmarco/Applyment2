@@ -144,28 +144,33 @@ public class UserService implements IUserService {
     public User login(String username, String password) {
         try {
             User user = dao.findOne("username", username, em);
-            if (user != null && PasswordHasher.verify(password, user.getPassword())) {
-                UserRoleDao userRoleDao = new UserRoleDao();
-                boolean hasValidUserRole = userRoleDao.hasRole(
-                        user.getId(),
-                        Role.USER,
-                        LocalDateTime.now(),
-                        em
+
+            if (user == null || !PasswordHasher.verify(password, user.getPassword())) {
+                throw new AuthenticationException(
+                        "Ungültige Anmeldedaten"
+                );
+            }
+
+            UserRoleDao userRoleDao = new UserRoleDao();
+            boolean hasValidUserRole = userRoleDao.hasRole(
+                    user.getId(),
+                    Role.USER,
+                    LocalDateTime.now(),
+                    em
+            );
+
+            if (!hasValidUserRole) {
+                logger.warning(
+                        "Login verweigert: Keine gültige USER-Rolle für Benutzer-ID "
+                                + user.getId()
                 );
 
-                if (!hasValidUserRole) {
-                    logger.warning(
-                            "Login verweigert: Keine gültige USER-Rolle für Benutzer-ID "
-                                    + user.getId()
-                    );
-
-                    return null;
-                }
-
-                user.setLoggedIn(true); // mark user as logged-in.
-
-                return dao.update(user, em); // update user
+                return null;
             }
+
+            user.setLoggedIn(true); // mark user as logged-in.
+
+            return dao.update(user, em); // update user
         } catch (AuthenticationException authEx) {
             logger.warning("Authentifizierung fehlgeschlagen");
             throw authEx;
@@ -181,8 +186,6 @@ public class UserService implements IUserService {
                     ex
             );
         }
-
-        return null;
     }
 
     /**
