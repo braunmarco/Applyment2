@@ -19,6 +19,9 @@ import java.util.function.Supplier;
 
 public class UserServiceTest {
     //private Logger logger = Logger.getLogger(UserServiceTest.class.getName());
+    public static final String TEST_USERNAME = "testUser";
+    public static final String TEST_PWD_1234 = "testPwd1234!";
+    public static final String TEST_USER_MAIL = "testUser@example.com";
     private LocalDateTime TEST_NOW = LocalDateTime.now();
     private EntityManagerFactory emf;
     private EntityManager em;
@@ -40,7 +43,7 @@ public class UserServiceTest {
 
     @Test
     public void testRegisterAssignUserRole() {
-        RegisterUserRequest registerUserRequest = new RegisterUserRequest("testUser", "testPwd1234!", "testUser@example.com");
+        RegisterUserRequest registerUserRequest = new RegisterUserRequest("testUser", TEST_PWD_1234 + "!", TEST_USER_MAIL);
         User user = inTransaction(() -> userService.register(registerUserRequest));
         Assertions.assertNotNull(user.getId());
 
@@ -53,37 +56,12 @@ public class UserServiceTest {
 
     @Test
     public void testLoginWithExpiredUserRole() {
-        RegisterUserRequest request =
-                new RegisterUserRequest(
-                        "testUser",
-                        "testPwd1234!",
-                        "testUser@example.com"
-                );
-
-        User user = inTransaction(
-                () -> userService.register(request)
-        );
-
-        inTransaction(() -> {
-            UserRoleDao userRoleDao = new UserRoleDao();
-
-            UserRole userRole = userRoleDao.findByUserIdAndRole(
-                    user.getId(),
-                    Role.USER,
-                    em
-            );
-
-            userRole.setValidTo(
-                    LocalDateTime.now().minusDays(1)
-            );
-
-            return userRole;
-        });
+        User user = registerTestUser(LocalDateTime.now().minusDays(1));
 
         User login = inTransaction(
                 () -> userService.login(
-                        request.username(),
-                        request.password()
+                        TEST_USERNAME,
+                        TEST_PWD_1234
                 )
         );
 
@@ -97,12 +75,29 @@ public class UserServiceTest {
 
     @Test
     public void testLoginWithValidUserRole() {
-        RegisterUserRequest request =
-                new RegisterUserRequest(
-                        "testUser",
-                        "testPwd1234!",
-                        "testUser@example.com"
-                );
+        User user = registerTestUser(LocalDateTime.now().plusDays(10));
+
+        User login = inTransaction(
+                () -> userService.login(
+                        TEST_USERNAME,
+                        TEST_PWD_1234
+                )
+        );
+
+        Assertions.assertNotNull(login);
+
+        em.clear();
+
+        User storedUser = em.find(User.class, user.getId());
+        Assertions.assertTrue(storedUser.isLoggedIn());
+    }
+
+    private User registerTestUser(LocalDateTime dateTime) {
+        RegisterUserRequest request = new RegisterUserRequest(
+                TEST_USERNAME,
+                TEST_PWD_1234,
+                TEST_USER_MAIL
+        );
 
         User user = inTransaction(
                 () -> userService.register(request)
@@ -118,25 +113,13 @@ public class UserServiceTest {
             );
 
             userRole.setValidTo(
-                    LocalDateTime.now().plusDays(10)
+                    dateTime
             );
 
             return userRole;
         });
 
-        User login = inTransaction(
-                () -> userService.login(
-                        request.username(),
-                        request.password()
-                )
-        );
-
-        Assertions.assertNotNull(login);
-
-        em.clear();
-
-        User storedUser = em.find(User.class, user.getId());
-        Assertions.assertTrue(storedUser.isLoggedIn());
+        return user;
     }
 
     private <T> T inTransaction(Supplier<T> action) {
