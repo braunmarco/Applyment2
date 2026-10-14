@@ -86,7 +86,13 @@ public class UserServiceTest {
                         request.password()
                 )
         );
+
         Assertions.assertNull(login);
+
+        em.clear();
+
+        User storedUser = em.find(User.class, user.getId());
+        Assertions.assertFalse(storedUser.isLoggedIn());
     }
 
     private <T> T inTransaction(Supplier<T> action) {
