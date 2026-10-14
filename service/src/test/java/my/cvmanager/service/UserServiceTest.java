@@ -56,7 +56,7 @@ public class UserServiceTest {
 
     @Test
     public void testLoginWithExpiredUserRole() {
-        User user = registerTestUserWithRoleExpiry(TEST_NOW.minusDays(1));
+        User user = registerTestUserWithRoleExpiry(TEST_NOW, TEST_NOW.minusDays(1));
 
         User login = inTransaction(
                 () -> userService.login(
@@ -74,8 +74,62 @@ public class UserServiceTest {
     }
 
     @Test
+    public void testLoginWithInvalidPassword() {
+        User user = registerTestUserWithRoleExpiry(TEST_NOW, TEST_NOW.plusDays(10));
+        User login = inTransaction(
+                () -> userService.login(
+                        TEST_USERNAME,
+                        "wrongPwd"
+                )
+        );
+
+        Assertions.assertNull(login);
+
+        em.clear();
+
+        User storedUser = em.find(User.class, user.getId());
+        Assertions.assertFalse(storedUser.isLoggedIn());
+    }
+
+    @Test
+    public void testLoginWithUnknownUser() {
+        User user = registerTestUserWithRoleExpiry(TEST_NOW, TEST_NOW.plusDays(10));
+        User login = inTransaction(
+                () -> userService.login(
+                        "unknownUser",
+                        TEST_PWD_1234
+                )
+        );
+
+        Assertions.assertNull(login);
+
+        em.clear();
+
+        User storedUser = em.find(User.class, user.getId());
+        Assertions.assertFalse(storedUser.isLoggedIn());
+    }
+
+    @Test
+    public void testLoginWithUserRoleValidInFuture() {
+        User user = registerTestUserWithRoleExpiry(TEST_NOW.plusDays(10), TEST_NOW.plusDays(12));
+        User login = inTransaction(
+                () -> userService.login(
+                        "unknownUser",
+                        TEST_PWD_1234
+                )
+        );
+
+        Assertions.assertNull(login);
+
+        em.clear();
+
+        User storedUser = em.find(User.class, user.getId());
+        Assertions.assertFalse(storedUser.isLoggedIn());
+    }
+
+    @Test
     public void testLoginWithValidUserRole() {
-        User user = registerTestUserWithRoleExpiry(TEST_NOW.plusDays(10));
+        User user = registerTestUserWithRoleExpiry(TEST_NOW, TEST_NOW.plusDays(12));
 
         User login = inTransaction(
                 () -> userService.login(
@@ -92,7 +146,7 @@ public class UserServiceTest {
         Assertions.assertTrue(storedUser.isLoggedIn());
     }
 
-    private User registerTestUserWithRoleExpiry(LocalDateTime dateTime) {
+    private User registerTestUserWithRoleExpiry(LocalDateTime from, LocalDateTime to) {
         RegisterUserRequest request = new RegisterUserRequest(
                 TEST_USERNAME,
                 TEST_PWD_1234,
@@ -112,9 +166,8 @@ public class UserServiceTest {
                     em
             );
 
-            userRole.setValidTo(
-                    dateTime
-            );
+            userRole.setValidFrom(from);
+            userRole.setValidTo(to);
 
             return userRole;
         });
