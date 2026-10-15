@@ -46,9 +46,19 @@ public class UserServiceMockitoTest {
                 Mockito.any(EntityManager.class)
         )).thenThrow(new PersistenceException("Database unavailable"));
 
-        Assertions.assertThrows(
+        AuthenticationServiceException exception = Assertions.assertThrows(
                 AuthenticationServiceException.class,
                 () -> userService.login("testUser", "testPwd1234!")
+        );
+
+        Assertions.assertInstanceOf(
+                PersistenceException.class,
+                exception.getCause()
+        );
+
+        Assertions.assertEquals(
+                "Database unavailable",
+                exception.getCause().getMessage()
         );
     }
 
