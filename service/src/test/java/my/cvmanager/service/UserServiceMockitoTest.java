@@ -2,6 +2,8 @@ package my.cvmanager.service;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceException;
+import my.cvmanager.domain.Role;
+import my.cvmanager.domain.User;
 import my.cvmanager.repositories.UserDao;
 import my.cvmanager.repositories.UserRoleDao;
 import my.cvmanager.service.exception.AuthenticationServiceException;
@@ -12,6 +14,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -60,6 +64,40 @@ public class UserServiceMockitoTest {
                 "Database unavailable",
                 exception.getCause().getMessage()
         );
+    }
+
+    @Test
+    public void testCheckValidUserRoleDBError() throws Exception {
+        User user = Mockito.spy(new User());
+        user.setUsername("testUser");
+        user.setPassword(PasswordHasher.hash("testPwd1234!"));
+        Mockito.doReturn(1L)
+                .when(user)
+                .getId();
+
+        Mockito.when(userDao.findOne(
+                Mockito.eq("username"),
+                Mockito.eq("testUser"),
+                Mockito.eq(em)
+        )).thenReturn(user);
+
+        Mockito.when(
+                userRoleDao.hasRole(
+                        Mockito.eq(user.getId()),
+                        Mockito.eq(Role.USER),
+                        Mockito.eq(LocalDateTime.now()),
+                        Mockito.eq(em)
+                )).thenThrow(new PersistenceException("Database unavailable"));
+
+        /*Assertions.assertInstanceOf(
+                PersistenceException.class,
+                exception.getCause()
+        );
+
+        Assertions.assertEquals(
+                "Database unavailable",
+                exception.getCause().getMessage()
+        );*/
     }
 
     @Test
