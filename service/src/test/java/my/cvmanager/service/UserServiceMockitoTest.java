@@ -81,15 +81,20 @@ public class UserServiceMockitoTest {
                 Mockito.eq(em)
         )).thenReturn(user);
 
-        Mockito.when(
-                userRoleDao.hasRole(
-                        Mockito.eq(user.getId()),
-                        Mockito.eq(Role.USER),
-                        Mockito.eq(LocalDateTime.now()),
-                        Mockito.eq(em)
-                )).thenThrow(new PersistenceException("Database unavailable"));
+        Mockito.when(userRoleDao.hasRole(
+                Mockito.eq(1L),
+                Mockito.eq(Role.USER),
+                Mockito.any(LocalDateTime.class),
+                Mockito.eq(em)
+        )).thenThrow(new PersistenceException("Database unavailable"));
 
-        /*Assertions.assertInstanceOf(
+        AuthenticationServiceException exception =
+                Assertions.assertThrows(
+                        AuthenticationServiceException.class,
+                        () -> userService.login("testUser", "testPwd1234!")
+                );
+
+        Assertions.assertInstanceOf(
                 PersistenceException.class,
                 exception.getCause()
         );
@@ -97,7 +102,7 @@ public class UserServiceMockitoTest {
         Assertions.assertEquals(
                 "Database unavailable",
                 exception.getCause().getMessage()
-        );*/
+        );
     }
 
     @Test
