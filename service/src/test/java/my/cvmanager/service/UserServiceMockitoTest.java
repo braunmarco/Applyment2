@@ -35,6 +35,9 @@ public class UserServiceMockitoTest {
         userService.setEntityManager(em);
     }
 
+    /**
+     * check DB connection and login
+     **/
     @Test
     public void testLoginWithValidUserDBError() throws Exception {
         Mockito.when(userDao.findOne(
