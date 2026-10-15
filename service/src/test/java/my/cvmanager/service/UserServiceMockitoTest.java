@@ -1,29 +1,38 @@
-package my.cvmanager.service.mockito;
+package my.cvmanager.service;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceException;
 import my.cvmanager.repositories.UserDao;
 import my.cvmanager.repositories.UserRoleDao;
-import my.cvmanager.service.UserService;
 import my.cvmanager.service.exception.AuthenticationServiceException;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+@ExtendWith(MockitoExtension.class)
 public class UserServiceMockitoTest {
 
     @Mock
     UserDao userDao;
+
     @Mock
     UserRoleDao userRoleDao;
+
     @Mock
-    EntityManager entityManager;
+    EntityManager em;
 
-    UserService userService;
+    private UserService userService;
 
-    public UserServiceMockitoTest() {
+    @BeforeEach
+    void setUp() {
         userService = new UserService(userDao, userRoleDao);
+        userService.setEntityManager(em);
     }
 
     @Test
@@ -38,5 +47,12 @@ public class UserServiceMockitoTest {
                 AuthenticationServiceException.class,
                 () -> userService.login("testUser", "testPwd1234!")
         );
+    }
+
+    @Test
+    void shouldInitializeMocks() {
+        assertNotNull(userDao);
+        assertNotNull(userRoleDao);
+        assertNotNull(em);
     }
 }
