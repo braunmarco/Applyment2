@@ -106,6 +106,73 @@ public class UserServiceMockitoTest {
     }
 
     @Test
+    public void testUserHasNoValidRole() {
+        User user = Mockito.spy(new User());
+        user.setUsername("testUser");
+        user.setPassword(PasswordHasher.hash("testPwd1234!"));
+        Mockito.doReturn(1L)
+                .when(user)
+                .getId();
+
+        Mockito.when(userDao.findOne(
+                Mockito.eq("username"),
+                Mockito.eq("testUser"),
+                Mockito.eq(em)
+        )).thenReturn(user);
+
+        Mockito.when(userRoleDao.hasRole(
+                Mockito.eq(1L),
+                Mockito.eq(Role.USER),
+                Mockito.any(LocalDateTime.class),
+                Mockito.eq(em)
+        )).thenReturn(Boolean.FALSE);
+
+        AuthenticationServiceException exception =
+                Assertions.assertThrows(
+                        AuthenticationServiceException.class,
+                        () -> userService.login("testUser", "testPwd1234!")
+                );
+
+        Assertions.assertInstanceOf(
+                PersistenceException.class,
+                exception.getCause()
+        );
+    }
+
+    @Test
+    public void testSucceedLoginWithValidRole() {
+        User user = Mockito.spy(new User());
+        user.setUsername("testUser");
+        user.setPassword(PasswordHasher.hash("testPwd1234!"));
+        Mockito.doReturn(1L)
+                .when(user)
+                .getId();
+
+        Mockito.when(userDao.findOne(
+                Mockito.eq("username"),
+                Mockito.eq("testUser"),
+                Mockito.eq(em)
+        )).thenReturn(user);
+
+        Mockito.when(userRoleDao.hasRole(
+                Mockito.eq(1L),
+                Mockito.eq(Role.USER),
+                Mockito.any(LocalDateTime.class),
+                Mockito.eq(em)
+        )).thenReturn(Boolean.TRUE);
+
+        Mockito.when(userDao.update(user, em))
+                .thenReturn(user);
+
+        Mockito.when(
+                userService.login("testUser", "testPwd1234!")
+        ).thenReturn(user);
+
+        Assertions.assertSame(user, userService.login("testUser", "testPwd1234!"));
+        Mockito.verify(userDao, Mockito.times(1)).update(user, em);
+    }
+
+    @Test
     void shouldInitializeMocks() {
         assertNotNull(userDao);
         assertNotNull(userRoleDao);
