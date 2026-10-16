@@ -72,7 +72,7 @@ public class UserServiceMockitoTest {
      */
     @Test
     public void testCheckValidUserRoleDBError() throws Exception {
-        User user = createTestUser();
+        User user = TestUserFactory.createUser(1L);
         mockUserLookup(user);
 
         Mockito.when(userRoleDao.hasRole(
@@ -104,7 +104,7 @@ public class UserServiceMockitoTest {
      */
     @Test
     public void testUserHasNoValidRole() {
-        User user = createTestUser();
+        User user = TestUserFactory.createUser(1L);
         mockUserLookup(user);
 
         Mockito.when(userRoleDao.hasRole(
@@ -128,7 +128,7 @@ public class UserServiceMockitoTest {
 
     @Test
     public void testWrongUserPassword() {
-        User user = createTestUserWithoutId();
+        User user = TestUserFactory.createUser();
         mockUserLookup(user);
 
         Assertions.assertThrows(
@@ -154,7 +154,7 @@ public class UserServiceMockitoTest {
      */
     @Test
     public void testSucceedLoginWithValidRole() {
-        User user = createTestUser();
+        User user = TestUserFactory.createUser(1L);
         mockUserLookup(user);
 
         Mockito.when(userRoleDao.hasRole(
@@ -174,33 +174,6 @@ public class UserServiceMockitoTest {
     }
 
     /**
-     * creates test user for mockito tests
-     *
-     * @return a test user with a predefined ID and hashed password
-     */
-    private User createTestUser() {
-        User user = Mockito.spy(new User());
-
-        user.setUsername("testUser");
-        user.setPassword(PasswordHasher.hash("testPwd1234!"));
-
-        Mockito.doReturn(1L)
-                .when(user)
-                .getId();
-
-        return user;
-    }
-
-    private User createTestUserWithoutId() {
-        User user = new User();
-
-        user.setUsername("testUser");
-        user.setPassword(PasswordHasher.hash("testPwd1234!"));
-
-        return user;
-    }
-
-    /**
      * find mocked user
      *
      * @param user the user returned by the mocked DAO
@@ -212,4 +185,6 @@ public class UserServiceMockitoTest {
                 Mockito.eq(em)
         )).thenReturn(user);
     }
+
+
 }
