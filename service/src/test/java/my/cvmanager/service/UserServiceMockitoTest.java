@@ -18,8 +18,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 @ExtendWith(MockitoExtension.class)
 public class UserServiceMockitoTest {
 
@@ -130,7 +128,7 @@ public class UserServiceMockitoTest {
 
     @Test
     public void testWrongUserPassword() {
-        User user = createTestUser();
+        User user = createTestUserWithoutId();
         mockUserLookup(user);
 
         Assertions.assertThrows(
@@ -139,7 +137,7 @@ public class UserServiceMockitoTest {
         );
 
         /**
-         * verify no methods of userDao are called
+         * verify no methods of userRoleDao are called
          */
         Mockito.verifyNoInteractions(userRoleDao);
         /**
@@ -193,6 +191,15 @@ public class UserServiceMockitoTest {
         return user;
     }
 
+    private User createTestUserWithoutId() {
+        User user = new User();
+
+        user.setUsername("testUser");
+        user.setPassword(PasswordHasher.hash("testPwd1234!"));
+
+        return user;
+    }
+
     /**
      * find mocked user
      *
@@ -204,12 +211,5 @@ public class UserServiceMockitoTest {
                 Mockito.eq("testUser"),
                 Mockito.eq(em)
         )).thenReturn(user);
-    }
-
-    @Test
-    void shouldInitializeMocks() {
-        assertNotNull(userDao);
-        assertNotNull(userRoleDao);
-        assertNotNull(em);
     }
 }
