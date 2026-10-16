@@ -69,13 +69,7 @@ public class UserServiceMockitoTest {
 
     @Test
     public void testCheckValidUserRoleDBError() throws Exception {
-        User user = Mockito.spy(new User());
-        user.setUsername("testUser");
-        user.setPassword(PasswordHasher.hash("testPwd1234!"));
-        Mockito.doReturn(1L)
-                .when(user)
-                .getId();
-
+        User user = createTestUser();
         Mockito.when(userDao.findOne(
                 Mockito.eq("username"),
                 Mockito.eq("testUser"),
@@ -108,13 +102,7 @@ public class UserServiceMockitoTest {
 
     @Test
     public void testUserHasNoValidRole() {
-        User user = Mockito.spy(new User());
-        user.setUsername("testUser");
-        user.setPassword(PasswordHasher.hash("testPwd1234!"));
-        Mockito.doReturn(1L)
-                .when(user)
-                .getId();
-
+        User user = createTestUser();
         Mockito.when(userDao.findOne(
                 Mockito.eq("username"),
                 Mockito.eq("testUser"),
@@ -141,13 +129,7 @@ public class UserServiceMockitoTest {
 
     @Test
     public void testSucceedLoginWithValidRole() {
-        User user = Mockito.spy(new User());
-        user.setUsername("testUser");
-        user.setPassword(PasswordHasher.hash("testPwd1234!"));
-        Mockito.doReturn(1L)
-                .when(user)
-                .getId();
-
+        User user = createTestUser();
         Mockito.when(userDao.findOne(
                 Mockito.eq("username"),
                 Mockito.eq("testUser"),
@@ -168,6 +150,24 @@ public class UserServiceMockitoTest {
         Assertions.assertSame(user, result);
         Assertions.assertTrue(user.isLoggedIn());
         Mockito.verify(userDao, Mockito.times(1)).update(user, em);
+    }
+
+    /**
+     * creates test user for mockito tests
+     *
+     * @return
+     */
+    private User createTestUser() {
+        User user = Mockito.spy(new User());
+
+        user.setUsername("testUser");
+        user.setPassword(PasswordHasher.hash("testPwd1234!"));
+
+        Mockito.doReturn(1L)
+                .when(user)
+                .getId();
+
+        return user;
     }
 
     @Test
