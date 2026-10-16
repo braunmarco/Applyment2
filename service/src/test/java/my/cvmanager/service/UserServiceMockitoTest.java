@@ -172,7 +172,7 @@ public class UserServiceMockitoTest {
     /**
      * find mocked user
      *
-     * @param user
+     * @param user the user returned by the mocked DAO
      */
     private void mockUserLookup(User user) {
         Mockito.when(userDao.findOne(
