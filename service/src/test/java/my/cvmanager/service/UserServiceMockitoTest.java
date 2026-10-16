@@ -136,13 +136,10 @@ public class UserServiceMockitoTest {
                 () -> userService.login("testUser", "wrongPwd1234!")
         );
 
-        /**
-         * verify no methods of userRoleDao are called
-         */
+        // verify no methods of userRoleDao are called
         Mockito.verifyNoInteractions(userRoleDao);
-        /**
-         * update method is never called
-         */
+
+        // update method is never called
         Mockito.verify(userDao, Mockito.never())
                 .update(Mockito.any(User.class), Mockito.eq(em));
 
@@ -168,9 +165,35 @@ public class UserServiceMockitoTest {
                 .thenReturn(user);
 
         User result = userService.login("testUser", "testPwd1234!");
+
         Assertions.assertSame(user, result);
         Assertions.assertTrue(user.isLoggedIn());
+
         Mockito.verify(userDao, Mockito.times(1)).update(user, em);
+    }
+
+    /**
+     * verify login with unknown user
+     */
+    @Test
+    public void testLoginWithUnknownUser() {
+        Assertions.assertThrows(
+                AuthenticationException.class,
+                () -> userService.login("someOne", "anyPwd1234!")
+        );
+
+        // verify no methods of userRoleDao are called
+        Mockito.verifyNoInteractions(userRoleDao);
+
+        // update method is never called
+        Mockito.verify(userDao, Mockito.never())
+                .update(Mockito.any(User.class), Mockito.eq(em));
+
+        // check findOne called only once
+        Mockito.verify(userDao, Mockito.times(1)).findOne(
+                Mockito.any(),
+                Mockito.any(),
+                Mockito.eq(em));
     }
 
     /**
@@ -185,6 +208,4 @@ public class UserServiceMockitoTest {
                 Mockito.eq(em)
         )).thenReturn(user);
     }
-
-
 }
