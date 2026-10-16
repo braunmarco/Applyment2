@@ -191,8 +191,8 @@ public class UserServiceMockitoTest {
 
         // check findOne called only once
         Mockito.verify(userDao, Mockito.times(1)).findOne(
-                Mockito.any(),
-                Mockito.any(),
+                Mockito.eq("username"),
+                Mockito.eq("someOne"),
                 Mockito.eq(em));
     }
 

@@ -24,10 +24,10 @@ public final class TestUserFactory {
     }
 
     /**
-     * creates test user for mockito tests
+     * Creates a test user with a predefined ID.
      *
-     * @param id
-     * @return a test user with a predefined ID and hashed password
+     * @param id the ID returned by the user spy
+     * @return a test user with the specified ID
      */
     public static User createUser(Long id) {
         User user = Mockito.spy(createUser());
