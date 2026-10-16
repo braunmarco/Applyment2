@@ -3,7 +3,7 @@ package my.cvmanager.service;
 import my.cvmanager.domain.User;
 import org.mockito.Mockito;
 
-public class TestUserFactory {
+public final class TestUserFactory {
     private static final String USERNAME = "testUser";
     private static final String PASSWORD = "testPwd1234!";
 
@@ -26,6 +26,7 @@ public class TestUserFactory {
     /**
      * creates test user for mockito tests
      *
+     * @param id
      * @return a test user with a predefined ID and hashed password
      */
     public static User createUser(Long id) {
