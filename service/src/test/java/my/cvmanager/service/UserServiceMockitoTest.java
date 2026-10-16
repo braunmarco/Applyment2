@@ -133,11 +133,22 @@ public class UserServiceMockitoTest {
         User user = createTestUser();
         mockUserLookup(user);
 
-        AuthenticationException exception =
-                Assertions.assertThrows(
-                        AuthenticationException.class,
-                        () -> userService.login("testUser", "wrongPwd1234!")
-                );
+        Assertions.assertThrows(
+                AuthenticationException.class,
+                () -> userService.login("testUser", "wrongPwd1234!")
+        );
+
+        /**
+         * verify no methods of userDao are called
+         */
+        Mockito.verifyNoInteractions(userRoleDao);
+        /**
+         * update method is never called
+         */
+        Mockito.verify(userDao, Mockito.never())
+                .update(Mockito.any(User.class), Mockito.eq(em));
+
+        Assertions.assertFalse(user.isLoggedIn());
     }
 
     /**
