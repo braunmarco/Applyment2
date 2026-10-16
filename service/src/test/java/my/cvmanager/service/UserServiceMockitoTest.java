@@ -116,15 +116,28 @@ public class UserServiceMockitoTest {
                 Mockito.eq(em)
         )).thenReturn(Boolean.FALSE);
 
-        AuthenticationException exception = Assertions.assertThrows(
-                AuthenticationException.class,
-                () -> userService.login("testUser", "testPwd1234!")
-        );
+        AuthenticationException exception =
+                Assertions.assertThrows(
+                        AuthenticationException.class,
+                        () -> userService.login("testUser", "testPwd1234!")
+                );
 
         Assertions.assertFalse(user.isLoggedIn());
 
         Mockito.verify(userDao, Mockito.never())
                 .update(Mockito.any(User.class), Mockito.eq(em));
+    }
+
+    @Test
+    public void testWrongUserPassword() {
+        User user = createTestUser();
+        mockUserLookup(user);
+
+        AuthenticationException exception =
+                Assertions.assertThrows(
+                        AuthenticationException.class,
+                        () -> userService.login("testUser", "wrongPwd1234!")
+                );
     }
 
     /**
