@@ -6,6 +6,7 @@ import my.cvmanager.domain.Role;
 import my.cvmanager.domain.User;
 import my.cvmanager.repositories.UserDao;
 import my.cvmanager.repositories.UserRoleDao;
+import my.cvmanager.service.exception.AuthenticationException;
 import my.cvmanager.service.exception.AuthenticationServiceException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -127,16 +128,15 @@ public class UserServiceMockitoTest {
                 Mockito.eq(em)
         )).thenReturn(Boolean.FALSE);
 
-        AuthenticationServiceException exception =
-                Assertions.assertThrows(
-                        AuthenticationServiceException.class,
-                        () -> userService.login("testUser", "testPwd1234!")
-                );
-
-        Assertions.assertInstanceOf(
-                PersistenceException.class,
-                exception.getCause()
+        AuthenticationException exception = Assertions.assertThrows(
+                AuthenticationException.class,
+                () -> userService.login("testUser", "testPwd1234!")
         );
+
+        Assertions.assertFalse(user.isLoggedIn());
+
+        Mockito.verify(userDao, Mockito.never())
+                .update(Mockito.any(User.class), Mockito.eq(em));
     }
 
     @Test
@@ -164,11 +164,10 @@ public class UserServiceMockitoTest {
         Mockito.when(userDao.update(user, em))
                 .thenReturn(user);
 
-        Mockito.when(
-                userService.login("testUser", "testPwd1234!")
-        ).thenReturn(user);
-
-        Assertions.assertSame(user, userService.login("testUser", "testPwd1234!"));
+        userService = new UserService(userDao, userRoleDao);
+        User result = userService.login("testUser", "testPwd1234!");
+        Assertions.assertSame(user, result);
+        Assertions.assertTrue(user.isLoggedIn());
         Mockito.verify(userDao, Mockito.times(1)).update(user, em);
     }
 
