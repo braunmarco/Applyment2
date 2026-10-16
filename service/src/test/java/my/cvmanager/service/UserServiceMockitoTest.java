@@ -67,14 +67,15 @@ public class UserServiceMockitoTest {
         );
     }
 
+    /**
+     * verify valid userRole when DBError
+     *
+     * @throws Exception
+     */
     @Test
     public void testCheckValidUserRoleDBError() throws Exception {
         User user = createTestUser();
-        Mockito.when(userDao.findOne(
-                Mockito.eq("username"),
-                Mockito.eq("testUser"),
-                Mockito.eq(em)
-        )).thenReturn(user);
+        mockUserLookup(user);
 
         Mockito.when(userRoleDao.hasRole(
                 Mockito.eq(1L),
@@ -106,11 +107,7 @@ public class UserServiceMockitoTest {
     @Test
     public void testUserHasNoValidRole() {
         User user = createTestUser();
-        Mockito.when(userDao.findOne(
-                Mockito.eq("username"),
-                Mockito.eq("testUser"),
-                Mockito.eq(em)
-        )).thenReturn(user);
+        mockUserLookup(user);
 
         Mockito.when(userRoleDao.hasRole(
                 Mockito.eq(1L),
@@ -136,11 +133,7 @@ public class UserServiceMockitoTest {
     @Test
     public void testSucceedLoginWithValidRole() {
         User user = createTestUser();
-        Mockito.when(userDao.findOne(
-                Mockito.eq("username"),
-                Mockito.eq("testUser"),
-                Mockito.eq(em)
-        )).thenReturn(user);
+        mockUserLookup(user);
 
         Mockito.when(userRoleDao.hasRole(
                 Mockito.eq(1L),
@@ -161,7 +154,7 @@ public class UserServiceMockitoTest {
     /**
      * creates test user for mockito tests
      *
-     * @return
+     * @return a test user with a predefined ID and hashed password
      */
     private User createTestUser() {
         User user = Mockito.spy(new User());
@@ -174,6 +167,19 @@ public class UserServiceMockitoTest {
                 .getId();
 
         return user;
+    }
+
+    /**
+     * find mocked user
+     *
+     * @param user
+     */
+    private void mockUserLookup(User user) {
+        Mockito.when(userDao.findOne(
+                Mockito.eq("username"),
+                Mockito.eq("testUser"),
+                Mockito.eq(em)
+        )).thenReturn(user);
     }
 
     @Test
