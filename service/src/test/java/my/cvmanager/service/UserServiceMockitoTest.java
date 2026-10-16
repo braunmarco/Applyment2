@@ -100,6 +100,44 @@ public class UserServiceMockitoTest {
     }
 
     /**
+     * check login flag while updating the flag a DB error occurs
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testLoginUpdateDBError() throws Exception {
+        User user = TestUserFactory.createUser(1L);
+        mockUserLookup(user);
+
+        Mockito.when(userRoleDao.hasRole(
+                Mockito.eq(1L),
+                Mockito.eq(Role.USER),
+                Mockito.any(LocalDateTime.class),
+                Mockito.eq(em)
+        )).thenReturn(Boolean.TRUE);
+
+        Mockito.when(userDao.update(user, em))
+                .thenThrow(new PersistenceException("update has failed."));
+
+        AuthenticationServiceException exception =
+                Assertions.assertThrows(
+                        AuthenticationServiceException.class,
+                        () -> userService.login("testUser", "testPwd1234!")
+                );
+
+        Assertions.assertInstanceOf(
+                PersistenceException.class,
+                exception.getCause()
+        );
+        Assertions.assertEquals(
+                "update has failed.",
+                exception.getCause().getMessage()
+        );
+
+        Assertions.assertTrue(user.isLoggedIn());
+    }
+
+    /**
      * check user has no valid role
      */
     @Test
