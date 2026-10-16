@@ -100,6 +100,9 @@ public class UserServiceMockitoTest {
         );
     }
 
+    /**
+     * check user has no valid role
+     */
     @Test
     public void testUserHasNoValidRole() {
         User user = createTestUser();
@@ -127,6 +130,9 @@ public class UserServiceMockitoTest {
                 .update(Mockito.any(User.class), Mockito.eq(em));
     }
 
+    /**
+     * check login of user with valid role
+     */
     @Test
     public void testSucceedLoginWithValidRole() {
         User user = createTestUser();
