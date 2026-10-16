@@ -164,7 +164,6 @@ public class UserServiceMockitoTest {
         Mockito.when(userDao.update(user, em))
                 .thenReturn(user);
 
-        userService = new UserService(userDao, userRoleDao);
         User result = userService.login("testUser", "testPwd1234!");
         Assertions.assertSame(user, result);
         Assertions.assertTrue(user.isLoggedIn());
