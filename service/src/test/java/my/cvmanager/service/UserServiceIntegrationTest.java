@@ -134,6 +134,27 @@ public class UserServiceIntegrationTest {
         Assertions.assertTrue(storedUser.isLoggedIn());
     }
 
+    /**
+     * verify loggedIn is still false after rollback
+     */
+    @Test
+    void testRollbackRestoresLoggedInState() {
+        // register user and commit
+        User user = registerTestUserWithRoleExpiry(TEST_NOW, TEST_NOW.plusDays(1));
+        // start new transaction
+        EntityTransaction tx = em.getTransaction();
+        tx.begin();
+        // loggedIn auf true
+        user.setLoggedIn(Boolean.TRUE);
+        // transaction rollback
+        tx.rollback();
+        // clear context and reload user
+        em.clear();
+        User storedUser = em.find(User.class, user.getId());
+        // verify user attribute loggedIn
+        Assertions.assertFalse(storedUser.isLoggedIn());
+    }
+
     private User registerTestUserWithRoleExpiry(LocalDateTime from, LocalDateTime to) {
         RegisterUserRequest request = new RegisterUserRequest(
                 TEST_USERNAME,
