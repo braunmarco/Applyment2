@@ -2,11 +2,29 @@ package my.cvmanager.service;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.Persistence;
+import my.cvmanager.domain.Role;
+import my.cvmanager.domain.User;
+import my.cvmanager.domain.UserRole;
+import my.cvmanager.repositories.UserDao;
+import my.cvmanager.repositories.UserRoleDao;
+import my.cvmanager.service.dto.RegisterUserRequest;
+import my.cvmanager.service.exception.AuthenticationException;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.time.LocalDateTime;
+import java.util.function.Supplier;
 
 public class UserServiceIntegrationTest {
+    //private Logger logger = Logger.getLogger(UserServiceTest.class.getName());
+    private static final String TEST_USERNAME = "testUser";
+    private static final String TEST_PWD_1234 = "testPwd1234!";
+    private static final String TEST_USER_MAIL = "testUser@example.com";
+    private static final LocalDateTime TEST_NOW = LocalDateTime.of(2026, 10, 14, 12, 0);
     private EntityManagerFactory emf;
     private EntityManager em;
     private UserService userService;
@@ -15,6 +33,12 @@ public class UserServiceIntegrationTest {
     public void setUp() {
         emf = Persistence.createEntityManagerFactory("cvmanagerTestPU");
         em = emf.createEntityManager();
+
+        UserDao userDao = new UserDao();
+        UserRoleDao userRoleDao = new UserRoleDao();
+
+        userService = new UserService(userDao, userRoleDao);
+        userService.setEntityManager(em);
     }
 
     @AfterEach
@@ -22,102 +46,137 @@ public class UserServiceIntegrationTest {
         if (em != null) em.close();
         if (emf != null) emf.close();
     }
-/*
-    private User register(String username, String password, String email) {
-        em.getTransaction().begin();
+
+    @Test
+    public void testRegisterAssignUserRole() {
+        RegisterUserRequest registerUserRequest = new RegisterUserRequest("testUser", TEST_PWD_1234, TEST_USER_MAIL);
+        User user = inTransaction(() -> userService.register(registerUserRequest));
+        Assertions.assertNotNull(user.getId());
+
+        em.clear();
+
+        UserRoleDao userRoleDao = new UserRoleDao();
+        boolean hasUserRole = userRoleDao.hasRole(user.getId(), Role.USER, TEST_NOW, em);
+        Assertions.assertTrue(hasUserRole);
+    }
+
+    @Test
+    public void testLoginWithExpiredUserRole() {
+        registerTestUserWithRoleExpiry(TEST_NOW, TEST_NOW.minusDays(1));
+        Assertions.assertThrows(
+                AuthenticationException.class,
+                () -> inTransaction(
+                        () -> userService.login(
+                                TEST_USERNAME,
+                                TEST_PWD_1234
+                        )
+                )
+        );
+    }
+
+    @Test
+    public void testLoginWithInvalidPassword() {
+        registerTestUserWithRoleExpiry(TEST_NOW, TEST_NOW.plusDays(10));
+        Assertions.assertThrows(
+                AuthenticationException.class,
+                () -> inTransaction(
+                        () -> userService.login(
+                                TEST_USERNAME,
+                                "wrongPwd"
+                        )
+                )
+        );
+    }
+
+    @Test
+    public void testLoginWithUnknownUser() {
+        registerTestUserWithRoleExpiry(TEST_NOW, TEST_NOW.plusDays(10));
+        Assertions.assertThrows(
+                AuthenticationException.class,
+                () -> inTransaction(
+                        () -> userService.login(
+                                "unknownUser",
+                                TEST_PWD_1234
+                        )
+                )
+        );
+    }
+
+    @Test
+    public void testLoginWithUserRoleValidInFuture() {
+        registerTestUserWithRoleExpiry(TEST_NOW.plusDays(10), TEST_NOW.plusDays(12));
+        Assertions.assertThrows(
+                AuthenticationException.class,
+                () -> inTransaction(
+                        () -> userService.login(
+                                TEST_USERNAME,
+                                TEST_PWD_1234
+                        )
+                )
+        );
+    }
+
+    @Test
+    public void testLoginWithValidUserRole() {
+        User user = registerTestUserWithRoleExpiry(TEST_NOW, TEST_NOW.plusDays(12));
+
+        User login = inTransaction(
+                () -> userService.login(
+                        TEST_USERNAME,
+                        TEST_PWD_1234
+                )
+        );
+
+        Assertions.assertNotNull(login);
+
+        em.clear();
+
+        User storedUser = em.find(User.class, user.getId());
+        Assertions.assertTrue(storedUser.isLoggedIn());
+    }
+
+    private User registerTestUserWithRoleExpiry(LocalDateTime from, LocalDateTime to) {
+        RegisterUserRequest request = new RegisterUserRequest(
+                TEST_USERNAME,
+                TEST_PWD_1234,
+                TEST_USER_MAIL
+        );
+
+        User user = inTransaction(
+                () -> userService.register(request)
+        );
+
+        inTransaction(() -> {
+            UserRoleDao userRoleDao = new UserRoleDao();
+
+            UserRole userRole = userRoleDao.findByUserIdAndRole(
+                    user.getId(),
+                    Role.USER,
+                    em
+            );
+
+            userRole.setValidFrom(from);
+            userRole.setValidTo(to);
+
+            return userRole;
+        });
+
+        return user;
+    }
+
+    private <T> T inTransaction(Supplier<T> action) {
+        EntityTransaction tx = em.getTransaction();
+        tx.begin();
         try {
-            User user = service.register(username, password, email);
-            em.getTransaction().commit();
-            em.clear();
-            return user;
-        } catch (RuntimeException e) {
-            if (em.getTransaction().isActive()) em.getTransaction().rollback();
+            T result = action.get();
+            tx.commit();
+            return result;
+        } catch (RuntimeException | Error e) {
+            if (tx.isActive()) {
+                tx.rollback();
+            }
             throw e;
         }
     }
-
-    @Test
-    public void registrationStoresHashAndCorrectPasswordAllowsLogin() {
-        User created = register("tester", "secure-test-password", "tester@example.test");
-        User stored = em.find(User.class, created.getId());
-        assertNotEquals("secure-test-password", stored.getPassword());
-        assertTrue(stored.getPassword().startsWith("pbkdf2-sha256$"));
-        assertTrue(PasswordHasher.verify("secure-test-password", stored.getPassword()));
-
-        em.getTransaction().begin();
-        User loggedIn = service.login("tester", "secure-test-password");
-        em.getTransaction().commit();
-        assertNotNull(loggedIn);
-        assertTrue(loggedIn.isLoggedIn());
-    }
-
-    @Test
-    public void wrongPasswordAndUnknownUserCannotLogin() {
-        register("tester", "secure-test-password", "tester@example.test");
-        em.getTransaction().begin();
-        assertNull(service.login("tester", "incorrect"));
-        assertNull(service.login("missing", "secure-test-password"));
-        em.getTransaction().commit();
-    }
-
-    @Test
-    public void validateCredentialsUsesHashVerification() {
-        register("tester", "secure-test-password", "tester@example.test");
-        assertTrue(service.validateCredentials("tester", "secure-test-password"));
-        assertFalse(service.validateCredentials("tester", "wrong"));
-        assertFalse(service.validateCredentials("missing", "secure-test-password"));
-    }
-
-    @Test(expected = ValidationException.class)
-    public void duplicateUsernameIsRejected() {
-        register("tester", "secure-test-password", "tester@example.test");
-        register("tester", "another-password", "other@example.test");
-    }
-
-    @Test
-    public void passwordChangeReplacesHashAndInvalidatesOldPassword() {
-        User created = register("tester", "original-password", "tester@example.test");
-        em.getTransaction().begin();
-        service.updatePassword(created.getId(), "updated-password");
-        em.getTransaction().commit();
-        em.clear();
-        User stored = em.find(User.class, created.getId());
-        assertTrue(PasswordHasher.verify("updated-password", stored.getPassword()));
-        assertFalse(PasswordHasher.verify("original-password", stored.getPassword()));
-    }
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void unauthenticatedPasswordResetIsDisabled() {
-        service.resetPassword("tester@example.test", "new-password");
-    }
-    @Test
-    public void nonAdminCanBeUnregistered() {
-        User created = register("tester", "secure-test-password", "tester@example.test");
-        em.getTransaction().begin();
-        service.unregister(created.getId());
-        em.getTransaction().commit();
-        em.clear();
-        assertNull(em.find(User.class, created.getId()));
-    }
-
-    @Test
-    public void administratorCannotBeUnregistered() {
-        User created = register("admin", "secure-test-password", "admin@example.test");
-        em.getTransaction().begin();
-        try {
-            service.unregister(created.getId());
-            fail("Expected administrator deletion to be rejected");
-        } catch (IllegalStateException expected) {
-            em.getTransaction().rollback();
-        }
-        em.clear();
-        assertNotNull(em.find(User.class, created.getId()));
-    }
-
-    @Test
-    public void adminCheckMatchesOnlyAdminUsername() {
-        assertTrue(service.isAdmin("admin", "admin@example.test"));
-        assertFalse(service.isAdmin("tester", "tester@example.test"));
-    }*/
 
 }
