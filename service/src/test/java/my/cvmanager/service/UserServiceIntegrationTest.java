@@ -144,8 +144,10 @@ public class UserServiceIntegrationTest {
         // start new transaction
         EntityTransaction tx = em.getTransaction();
         tx.begin();
+        User managedUser = em.find(User.class, user.getId());
         // loggedIn auf true
-        user.setLoggedIn(Boolean.TRUE);
+        managedUser.setLoggedIn(Boolean.TRUE);
+        em.flush();
         // transaction rollback
         tx.rollback();
         // clear context and reload user
