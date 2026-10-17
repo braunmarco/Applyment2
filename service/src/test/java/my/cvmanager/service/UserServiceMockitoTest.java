@@ -135,8 +135,10 @@ public class UserServiceMockitoTest {
         );
 
         Assertions.assertTrue(user.isLoggedIn());
+        Mockito.verify(userDao, Mockito.times(1))
+                .update(user, em);
     }
-
+  
     /**
      * check user has no valid role
      */
