@@ -20,7 +20,6 @@ import java.time.LocalDateTime;
 import java.util.function.Supplier;
 
 public class UserServiceIntegrationTest {
-    //private Logger logger = Logger.getLogger(UserServiceTest.class.getName());
     private static final String TEST_USERNAME = "testUser";
     private static final String TEST_PWD_1234 = "testPwd1234!";
     private static final String TEST_USER_MAIL = "testUser@example.com";
