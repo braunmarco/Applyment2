@@ -2,26 +2,27 @@ package my.cvmanager.service;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class UserServiceIntegrationTest {
     private EntityManagerFactory emf;
     private EntityManager em;
-    private UserService service;
+    private UserService userService;
 
-  /*  @Before
+    @BeforeEach
     public void setUp() {
         emf = Persistence.createEntityManagerFactory("cvmanagerTestPU");
         em = emf.createEntityManager();
-        service = new UserService();
-        service.setEntityManager(em);
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         if (em != null) em.close();
         if (emf != null) emf.close();
     }
-
+/*
     private User register(String username, String password, String email) {
         em.getTransaction().begin();
         try {
