@@ -143,7 +143,7 @@ public class UserService implements IUserService {
             logger.warning("User not found");
             return;
         }
-        if (isAdmin(user)) {
+        if (authorizationService.isAdmin(user.getId())) {
             throw new IllegalStateException("Administrator account cannot be deleted");
         }
         userDao.delete(user, em);
@@ -389,27 +389,6 @@ public class UserService implements IUserService {
     }
 
     /**
-     * Checks if a user is an administrator.
-     *
-     * @param user the user to check
-     * @return true if the user is an administrator, false otherwise
-     */
-    public boolean isAdmin(User user) {
-        return isAdmin(user.getUsername(), user.getEmail());
-    }
-
-    /**
-     * Checks if a user with the given username and email is an administrator.
-     *
-     * @param username the username of the user
-     * @param email    the email address of the user
-     * @return true if the user is an administrator, false otherwise
-     */
-    public boolean isAdmin(String username, String email) {
-        return ADMIN.equals(username);
-    }
-
-    /**
      * remove user
      *
      * @param actingUserId user
@@ -422,6 +401,7 @@ public class UserService implements IUserService {
                 actingUserId, Role.ADMIN
         );
 
-        // Benutzer löschen
+        // remove user
+        unregister(targetUserId);
     }
 }

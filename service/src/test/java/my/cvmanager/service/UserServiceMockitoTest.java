@@ -31,6 +31,8 @@ public class UserServiceMockitoTest {
     EntityManager em;
 
     private UserService userService;
+
+    @Mock
     private AuthorizationService authorizationService;
 
     @BeforeEach
