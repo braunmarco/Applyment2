@@ -143,6 +143,10 @@ public class UserService implements IUserService {
             logger.warning("User not found");
             return;
         }
+        if (!authorizationService.isAdmin(user.getId())) {
+            throw new AuthenticationException("Administrator account is required to unregister user");
+        }
+
         if (authorizationService.isAdmin(user.getId())) {
             throw new IllegalStateException("Administrator account cannot be deleted");
         }
