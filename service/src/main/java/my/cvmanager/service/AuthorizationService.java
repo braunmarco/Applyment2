@@ -31,5 +31,13 @@ public class AuthorizationService {
         );
     }
 
-    //TODO create  method to verify  user is admin
+    /**
+     * verify user is  admin
+     *
+     * @param userId
+     * @return
+     */
+    public boolean isAdmin(Long userId) {
+        return hasRole(userId, Role.ADMIN);
+    }
 }

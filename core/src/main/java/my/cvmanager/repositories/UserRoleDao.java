@@ -1,5 +1,6 @@
 package my.cvmanager.repositories;
 
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import my.cvmanager.domain.Role;
@@ -7,6 +8,7 @@ import my.cvmanager.domain.UserRole;
 
 import java.time.LocalDateTime;
 
+@ApplicationScoped
 public class UserRoleDao extends BaseDao<UserRole> {
     public UserRoleDao() {
         super(UserRole.class);
