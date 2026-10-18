@@ -408,4 +408,20 @@ public class UserService implements IUserService {
     public boolean isAdmin(String username, String email) {
         return ADMIN.equals(username);
     }
+
+    /**
+     * remove user
+     *
+     * @param actingUserId user
+     * @param targetUserId
+     */
+    @Transactional
+    public void deleteUser(Long actingUserId, Long targetUserId) {
+
+        authorizationService.requireRole(
+                actingUserId, Role.ADMIN
+        );
+
+        // Benutzer löschen
+    }
 }
