@@ -136,15 +136,11 @@ public class UserService implements IUserService {
      * @param userId the ID of the user to unregister
      */
     @Transactional
-    @Override
-    public void unregister(Long userId) {
+    private void unregister(Long userId) {
         User user = userDao.find(userId, em);
         if (user == null) {
             logger.warning("User not found");
             return;
-        }
-        if (!authorizationService.isAdmin(user.getId())) {
-            throw new AuthenticationException("Administrator account is required to unregister user");
         }
 
         if (authorizationService.isAdmin(user.getId())) {
@@ -406,6 +402,10 @@ public class UserService implements IUserService {
         );
 
         // remove user
-        unregister(targetUserId);
+        deleteUser(actingUserId, targetUserId);
+    }
+
+    private void deleteUserInternal(Long actingUserId, Long targetUserId) {
+
     }
 }
