@@ -404,14 +404,16 @@ public class UserService implements IUserService {
 
         if (user == null) {
             logger.warning("User not found");
-            return;
+            throw new UserNotFoundException(
+                    "Benutzer nicht gefunden"
+            );
         }
 
         if (authorizationService.isAdmin(user.getId())) {
             throw new IllegalStateException("Administrator account cannot be deleted");
         }
+
         userDao.delete(user, em);
         logger.info("User has been unregistered successfully");
-        userDao.delete(user, em);
     }
 }
