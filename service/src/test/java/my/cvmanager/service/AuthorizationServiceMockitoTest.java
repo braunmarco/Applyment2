@@ -38,7 +38,7 @@ public class AuthorizationServiceMockitoTest {
 
         Mockito.when(userRoleDao.hasRole(
                 Mockito.eq(1L),
-                Mockito.eq(Role.USER),
+                Mockito.eq(Role.ADMIN),
                 Mockito.any(LocalDateTime.class),
                 Mockito.eq(em)
         )).thenReturn(true);
