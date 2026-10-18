@@ -59,6 +59,11 @@ public class UserService implements IUserService {
     private final UserRoleDao userRoleDao;
 
     /**
+     * The userService instance for this class
+     */
+    private final AuthorizationService authorizationService;
+
+    /**
      * Sets the entity manager instance for this class.
      * This method is used for testing purposes to inject a mock entity manager.
      *
@@ -69,9 +74,10 @@ public class UserService implements IUserService {
     }
 
     @Inject
-    public UserService(UserDao userDao, UserRoleDao userRoleDao) {
+    public UserService(UserDao userDao, UserRoleDao userRoleDao, AuthorizationService authorizationService) {
         this.userDao = userDao;
         this.userRoleDao = userRoleDao;
+        this.authorizationService = authorizationService;
     }
 
     /**

@@ -6,6 +6,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import my.cvmanager.domain.Role;
 import my.cvmanager.repositories.UserRoleDao;
+import my.cvmanager.service.exception.AuthorizationException;
 
 import java.time.LocalDateTime;
 
@@ -50,4 +51,19 @@ public class AuthorizationService {
     public boolean isAdmin(Long userId) {
         return hasRole(userId, Role.ADMIN);
     }
+
+    /**
+     * verify user has required role
+     *
+     * @param userId
+     * @param role
+     */
+    public void requireRole(Long userId, Role role) {
+        if (!hasRole(userId, role)) {
+            throw new AuthorizationException(
+                    "Access denied: required role " + role
+            );
+        }
+    }
+
 }

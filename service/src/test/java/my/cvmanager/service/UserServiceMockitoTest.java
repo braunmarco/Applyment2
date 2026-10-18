@@ -31,10 +31,11 @@ public class UserServiceMockitoTest {
     EntityManager em;
 
     private UserService userService;
+    private AuthorizationService authorizationService;
 
     @BeforeEach
     void setUp() {
-        userService = new UserService(userDao, userRoleDao);
+        userService = new UserService(userDao, userRoleDao, authorizationService);
         userService.setEntityManager(em);
     }
 
@@ -138,7 +139,7 @@ public class UserServiceMockitoTest {
         Mockito.verify(userDao, Mockito.times(1))
                 .update(user, em);
     }
-  
+
     /**
      * check user has no valid role
      */

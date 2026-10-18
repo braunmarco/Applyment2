@@ -27,6 +27,7 @@ public class UserServiceIntegrationTest {
     private EntityManagerFactory emf;
     private EntityManager em;
     private UserService userService;
+    private AuthorizationService authorizationService;
 
     @BeforeEach
     public void setUp() {
@@ -36,7 +37,7 @@ public class UserServiceIntegrationTest {
         UserDao userDao = new UserDao();
         UserRoleDao userRoleDao = new UserRoleDao();
 
-        userService = new UserService(userDao, userRoleDao);
+        userService = new UserService(userDao, userRoleDao, authorizationService);
         userService.setEntityManager(em);
     }
 
