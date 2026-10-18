@@ -2,7 +2,6 @@ package my.cvmanager.service;
 
 import jakarta.persistence.EntityManager;
 import my.cvmanager.domain.Role;
-import my.cvmanager.domain.User;
 import my.cvmanager.repositories.UserRoleDao;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,7 +35,6 @@ public class AuthorizationServiceMockitoTest {
      */
     @Test
     public void testUserHasRole() {
-        User user = TestUserFactory.createUser(1L);
 
         Mockito.when(userRoleDao.hasRole(
                 Mockito.eq(1L),
@@ -45,7 +43,7 @@ public class AuthorizationServiceMockitoTest {
                 Mockito.eq(em)
         )).thenReturn(true);
 
-        boolean result = authorizationService.hasRole(1L, Role.USER);
+        boolean result = authorizationService.isAdmin(1L);
 
         Assertions.assertTrue(result);
     }
