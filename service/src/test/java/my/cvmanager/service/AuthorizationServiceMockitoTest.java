@@ -3,30 +3,32 @@ package my.cvmanager.service;
 import jakarta.persistence.EntityManager;
 import my.cvmanager.domain.Role;
 import my.cvmanager.domain.User;
-import my.cvmanager.repositories.UserDao;
 import my.cvmanager.repositories.UserRoleDao;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
+
+@ExtendWith(MockitoExtension.class)
 public class AuthorizationServiceMockitoTest {
 
     @Mock
     private EntityManager em;
 
     @Mock
-    private AuthorizationService authorizationService;
-
-    @Mock
-    UserDao userDao;
-
-    @Mock
     private UserRoleDao userRoleDao;
+
+    private AuthorizationService authorizationService;
 
     @BeforeEach
     void setUp() {
         authorizationService = new AuthorizationService(userRoleDao);
+        authorizationService.setEntityManager(em);
     }
 
     /**
@@ -35,24 +37,16 @@ public class AuthorizationServiceMockitoTest {
     @Test
     public void testUserHasRole() {
         User user = TestUserFactory.createUser(1L);
-        mockUserLookup(user);
 
-        Mockito.when(authorizationService.hasRole(
-                user.getId(),
-                Role.ADMIN)
-        ).thenReturn(Boolean.FALSE);
-    }
-
-    /**
-     * find mocked user
-     *
-     * @param user the user returned by the mocked DAO
-     */
-    private void mockUserLookup(User user) {
-        Mockito.when(userDao.findOne(
-                Mockito.eq("username"),
-                Mockito.eq("testUser"),
+        Mockito.when(userRoleDao.hasRole(
+                Mockito.eq(1L),
+                Mockito.eq(Role.USER),
+                Mockito.any(LocalDateTime.class),
                 Mockito.eq(em)
-        )).thenReturn(user);
+        )).thenReturn(true);
+
+        boolean result = authorizationService.hasRole(1L, Role.USER);
+
+        Assertions.assertTrue(result);
     }
 }

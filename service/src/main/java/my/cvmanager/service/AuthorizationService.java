@@ -21,6 +21,16 @@ public class AuthorizationService {
         this.userRoleDao = userRoleDao;
     }
 
+    /**
+     * Sets the entity manager instance for this class.
+     * This method is used for testing purposes to inject a mock entity manager.
+     *
+     * @param em the entity manager instance to set
+     */
+    void setEntityManager(EntityManager em) {
+        this.em = em;
+    }
+
     public boolean hasRole(Long userId, Role role) {
         return userRoleDao.hasRole(
                 userId,
