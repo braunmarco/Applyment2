@@ -1,6 +1,11 @@
 package my.cvmanager.service;
 
+import jakarta.persistence.EntityManager;
+import my.cvmanager.domain.Role;
 import my.cvmanager.domain.User;
+import my.cvmanager.domain.UserRole;
+import my.cvmanager.repositories.UserDao;
+import my.cvmanager.repositories.UserRoleDao;
 import org.mockito.Mockito;
 
 public final class TestUserFactory {
@@ -34,5 +39,25 @@ public final class TestUserFactory {
         Mockito.doReturn(id).when(user).getId();
 
         return user;
+    }
+
+    public static User createAdminUser(EntityManager em) {
+        User adminUser = createUser();
+        adminUser.setUsername("admin");
+        adminUser.setPassword(PasswordHasher.hash("admin"));
+
+        UserRole userRole = new UserRole();
+        UserRoleDao userRoleDao = new UserRoleDao();
+        userRole.setUser(adminUser);
+        userRole.setRole(Role.ADMIN);
+
+        UserDao userDao = new UserDao();
+        userDao.persist(adminUser, em);
+
+        //AuthorizationService authorizationService = new AuthorizationService(userRoleDao);
+        //UserService userService = new UserService(userDao, userRoleDao, authorizationService);
+        //userService.assignRole();
+
+        return adminUser;
     }
 }

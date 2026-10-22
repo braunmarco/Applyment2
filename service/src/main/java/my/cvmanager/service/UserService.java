@@ -416,4 +416,25 @@ public class UserService implements IUserService {
         userDao.delete(user, em);
         logger.info("User has been unregistered successfully");
     }
+
+    /**
+     * assign role to user required admin role.
+     *
+     * @param userId       which user try to execute the action
+     * @param targetUserId user to assign the role  to
+     * @param role         assigned role to target user
+     */
+    @Transactional
+    public void assignRole(Long userId, Long targetUserId, Role role) {
+        authorizationService.requireRole(userId, Role.ADMIN);
+        User targetUser = userDao.find(targetUserId, em);
+
+        if (!userRoleDao.hasRole(targetUser.getId(), role, LocalDateTime.now(), em)) {
+            UserRole userRole = new UserRole();
+            userRole.setRole(role);
+            userRoleDao.persist(userRole, em);
+        } else {
+            logger.warning("user still has the role: " + role);
+        }
+    }
 }

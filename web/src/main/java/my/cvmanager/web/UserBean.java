@@ -65,10 +65,9 @@ public class UserBean implements Serializable {
      *
      * @return the URL of the login page
      */
-    public String unregister(Long targetUserId) {
+    public String deleteUser(Long targetUserId) {
         try {
             userService.deleteUser(loggedInUser.getId(), targetUserId);
-            loggedInUser = null;
 
             return "login.xhtml?faces-redirect=true";
         } catch (Exception e) {

@@ -239,6 +239,33 @@ public class UserServiceMockitoTest {
                 Mockito.eq(em));
     }
 
+    @Test
+    public void testDeleteUser() {
+        User user = TestUserFactory.createUser(1L);
+        mockUserLookup(user);
+
+        Mockito.when(userRoleDao.hasRole(
+                Mockito.eq(1L),
+                Mockito.eq(Role.ADMIN),
+                Mockito.any(LocalDateTime.class),
+                Mockito.eq(em)
+        )).thenReturn(Boolean.FALSE);
+
+        userDao.delete(user, em);
+    }
+
+    @Test
+    public void testAssignRole() {
+        User adminUser = TestUserFactory.createAdminUser(em);
+        mockUserLookup(adminUser);
+        User user = TestUserFactory.createUser(2L);
+        mockUserLookup(user);
+
+        userService.assignRole(user.getId(), adminUser.getId(), Role.ADMIN);
+
+
+    }
+
     /**
      * find mocked user
      *
