@@ -261,8 +261,9 @@ public class UserServiceMockitoTest {
         Long adminId = 1L;
         Long targetUserId = 2L;
 
-        User adminUser = TestUserFactory.createUser(adminId);
         User targetUser = TestUserFactory.createUser(targetUserId);
+
+        Mockito.when(userDao.find(targetUserId, em)).thenReturn(targetUser);
 
         Mockito.when(userRoleDao.hasRole(
                 Mockito.eq(targetUserId),
