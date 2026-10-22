@@ -260,7 +260,8 @@ public class UserServiceMockitoTest {
     public void testAssignRole() {
         Long adminId = 1L;
         Long targetUserId = 2L;
-        User adminUser = TestUserFactory.createAdminUser(em);
+
+        User adminUser = TestUserFactory.createUser(adminId);
         User targetUser = TestUserFactory.createUser(targetUserId);
 
         Mockito.when(userRoleDao.hasRole(
