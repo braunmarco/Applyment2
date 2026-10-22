@@ -429,12 +429,26 @@ public class UserService implements IUserService {
         authorizationService.requireRole(userId, Role.ADMIN);
         User targetUser = userDao.find(targetUserId, em);
 
-        if (!userRoleDao.hasRole(targetUser.getId(), role, LocalDateTime.now(), em)) {
-            UserRole userRole = new UserRole();
-            userRole.setRole(role);
-            userRoleDao.persist(userRole, em);
-        } else {
-            logger.warning("user still has the role: " + role);
+        if (targetUser == null) {
+            throw new UserNotFoundException(
+                    "Benutzer nicht gefunden"
+            );
         }
+
+        if (userRoleDao.hasRole(
+                targetUserId,
+                role,
+                LocalDateTime.now(),
+                em)) {
+
+            logger.warning("User already has active role: " + role);
+            return;
+        }
+
+        UserRole userRole = new UserRole();
+        userRole.setUser(targetUser);
+        userRole.setRole(role);
+
+        userRoleDao.persist(userRole, em);
     }
 }

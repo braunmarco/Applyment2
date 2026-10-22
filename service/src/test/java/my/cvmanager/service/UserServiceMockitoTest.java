@@ -4,6 +4,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceException;
 import my.cvmanager.domain.Role;
 import my.cvmanager.domain.User;
+import my.cvmanager.domain.UserRole;
 import my.cvmanager.repositories.UserDao;
 import my.cvmanager.repositories.UserRoleDao;
 import my.cvmanager.service.exception.AuthenticationException;
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -256,14 +258,27 @@ public class UserServiceMockitoTest {
 
     @Test
     public void testAssignRole() {
+        Long adminId = 1L;
+        Long targetUserId = 2L;
         User adminUser = TestUserFactory.createAdminUser(em);
-        mockUserLookup(adminUser);
-        User user = TestUserFactory.createUser(2L);
-        mockUserLookup(user);
+        User targetUser = TestUserFactory.createUser(targetUserId);
 
-        userService.assignRole(user.getId(), adminUser.getId(), Role.ADMIN);
+        Mockito.when(userRoleDao.hasRole(
+                Mockito.eq(targetUserId),
+                Mockito.eq(Role.ADMIN),
+                Mockito.any(LocalDateTime.class),
+                Mockito.eq(em)
+        )).thenReturn(false);
 
+        userService.assignRole(adminId, targetUserId, Role.ADMIN);
+        ArgumentCaptor<UserRole> userCaptor = ArgumentCaptor.forClass(UserRole.class);
+        Mockito.verify(userRoleDao).persist(userCaptor.capture(), Mockito.eq(em));
 
+        UserRole savedUserRole = userCaptor.getValue();
+        Assertions.assertSame(targetUser, savedUserRole.getUser());
+        Assertions.assertEquals(Role.ADMIN, savedUserRole.getRole());
+
+        Mockito.verify(authorizationService).requireRole(adminId, Role.ADMIN);
     }
 
     /**

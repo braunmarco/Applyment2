@@ -42,7 +42,7 @@ public final class TestUserFactory {
     }
 
     public static User createAdminUser(EntityManager em) {
-        User adminUser = createUser();
+        User adminUser = createUser(1L);
         adminUser.setUsername("admin");
         adminUser.setPassword(PasswordHasher.hash("admin"));
 
