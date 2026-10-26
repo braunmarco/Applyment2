@@ -263,7 +263,8 @@ public class UserServiceMockitoTest {
 
         User targetUser = TestUserFactory.createUser(targetUserId);
 
-        Mockito.when(userDao.find(targetUserId, em)).thenReturn(targetUser);
+        Mockito.when(userDao.find(targetUserId, em))
+                .thenReturn(targetUser);
 
         Mockito.when(userRoleDao.hasRole(
                 Mockito.eq(targetUserId),
@@ -273,6 +274,7 @@ public class UserServiceMockitoTest {
         )).thenReturn(false);
 
         userService.assignRole(adminId, targetUserId, Role.ADMIN);
+
         ArgumentCaptor<UserRole> userCaptor = ArgumentCaptor.forClass(UserRole.class);
         Mockito.verify(userRoleDao).persist(userCaptor.capture(), Mockito.eq(em));
 
