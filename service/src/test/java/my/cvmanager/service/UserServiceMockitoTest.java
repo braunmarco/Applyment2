@@ -242,18 +242,27 @@ public class UserServiceMockitoTest {
     }
 
     @Test
+    public void testDeleteAdmin() {
+        
+    }
+
+    @Test
     public void testDeleteUser() {
-        User user = TestUserFactory.createUser(1L);
-        mockUserLookup(user);
+        Long adminId = 1L;
+        Long targetUserId = 2L;
 
-        Mockito.when(userRoleDao.hasRole(
-                Mockito.eq(1L),
-                Mockito.eq(Role.ADMIN),
-                Mockito.any(LocalDateTime.class),
-                Mockito.eq(em)
-        )).thenReturn(Boolean.FALSE);
+        User targetUser = TestUserFactory.createUser();
 
-        userDao.delete(user, em);
+        Mockito.when(userDao.find(targetUserId, em))
+                .thenReturn(targetUser);
+
+        userService.deleteUser(adminId, targetUserId);
+
+        Mockito.verify(authorizationService)
+                .requireRole(adminId, Role.ADMIN);
+
+        Mockito.verify(userDao)
+                .delete(targetUser, em);
     }
 
     @Test
@@ -261,17 +270,10 @@ public class UserServiceMockitoTest {
         Long adminId = 1L;
         Long targetUserId = 2L;
 
-        User targetUser = TestUserFactory.createUser(targetUserId);
+        User targetUser = TestUserFactory.createUser();
 
         Mockito.when(userDao.find(targetUserId, em))
                 .thenReturn(targetUser);
-
-        Mockito.when(userRoleDao.hasRole(
-                Mockito.eq(targetUserId),
-                Mockito.eq(Role.ADMIN),
-                Mockito.any(LocalDateTime.class),
-                Mockito.eq(em)
-        )).thenReturn(false);
 
         userService.assignRole(adminId, targetUserId, Role.ADMIN);
 
