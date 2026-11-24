@@ -254,13 +254,16 @@ public class UserServiceMockitoTest {
         Mockito.when(authorizationService.isAdmin(targetUserId))
                 .thenReturn(true);
 
-        userService.deleteUser(adminId, targetUserId);
+        Assertions.assertThrows(
+                IllegalStateException.class,
+                () -> userService.deleteUser(adminId, targetUserId)
+        );
 
         Mockito.verify(authorizationService)
                 .requireRole(adminId, Role.ADMIN);
 
-        Mockito.verify(userDao)
-                .delete(targetUser, em);
+        Mockito.verify(userDao, Mockito.never())
+                .delete(Mockito.any(User.class), Mockito.eq(em));
     }
 
     @Test
