@@ -243,7 +243,7 @@ public class UserServiceMockitoTest {
 
     @Test
     public void testDeleteAdmin() {
-        
+
     }
 
     @Test
@@ -251,10 +251,10 @@ public class UserServiceMockitoTest {
         Long adminId = 1L;
         Long targetUserId = 2L;
 
-        User targetUser = TestUserFactory.createUser();
+        User targetUser = TestUserFactory.createUser(targetUserId);
 
-        Mockito.when(userDao.find(targetUserId, em))
-                .thenReturn(targetUser);
+        Mockito.when(authorizationService.isAdmin(targetUserId))
+                .thenReturn(false);
 
         userService.deleteUser(adminId, targetUserId);
 
