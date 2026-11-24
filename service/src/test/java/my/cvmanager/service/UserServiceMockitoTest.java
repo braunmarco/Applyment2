@@ -241,72 +241,101 @@ public class UserServiceMockitoTest {
                 Mockito.eq(em));
     }
 
+    /**
+     * Even an administrator must not delete another administrator.
+     */
     @Test
     public void testDeleteAdmin() {
+        // Arrange: distinguish the acting administrator from the target user.
         Long adminId = 1L;
         Long targetUserId = 2L;
 
+        // The service reads getId(), so the spy must return the target ID.
         User targetUser = TestUserFactory.createUser(targetUserId);
 
+        // Creating a test user does not register it with the mocked DAO.
         Mockito.when(userDao.find(targetUserId, em))
                 .thenReturn(targetUser);
 
         Mockito.when(authorizationService.isAdmin(targetUserId))
                 .thenReturn(true);
 
+        // Act & Assert: execute the service and expect the protection exception.
         Assertions.assertThrows(
                 IllegalStateException.class,
                 () -> userService.deleteUser(adminId, targetUserId)
         );
 
+        // Verify that the acting user's required role was checked.
         Mockito.verify(authorizationService)
                 .requireRole(adminId, Role.ADMIN);
 
+        // An exception alone does not prove that delete was never attempted.
+        // Verify zero delete calls independently of the exception assertion.
         Mockito.verify(userDao, Mockito.never())
                 .delete(Mockito.any(User.class), Mockito.eq(em));
     }
 
+    /**
+     * An administrator may delete a non-administrator account.
+     */
     @Test
     public void testDeleteUser() {
+        // Arrange: distinguish the acting administrator from the target user.
         Long adminId = 1L;
         Long targetUserId = 2L;
 
+        // The service reads getId(), so the spy must return the target ID.
         User targetUser = TestUserFactory.createUser(targetUserId);
 
+        // Creating a test user does not register it with the mocked DAO.
         Mockito.when(userDao.find(targetUserId, em))
                 .thenReturn(targetUser);
 
         Mockito.when(authorizationService.isAdmin(targetUserId))
                 .thenReturn(false);
 
+        // Act: execute the service, not the mocked DAO.
         userService.deleteUser(adminId, targetUserId);
 
+        // Verify that the acting user's required role was checked.
         Mockito.verify(authorizationService)
                 .requireRole(adminId, Role.ADMIN);
 
+        // Assert: verify(mock) expects exactly one matching invocation.
         Mockito.verify(userDao)
                 .delete(targetUser, em);
     }
 
+    /**
+     * Verify that an administrator can assign a role to an existing user.
+     */
     @Test
     public void testAssignRole() {
+        // Arrange: distinguish the acting administrator from the target user.
         Long adminId = 1L;
         Long targetUserId = 2L;
 
+        // No ID spy is needed: assignRole uses the targetUserId parameter.
         User targetUser = TestUserFactory.createUser();
 
+        // Creating a test user does not register it with the mocked DAO.
         Mockito.when(userDao.find(targetUserId, em))
                 .thenReturn(targetUser);
 
+        // Act
         userService.assignRole(adminId, targetUserId, Role.ADMIN);
 
+        // Assert: capture the actual role entity passed to persist.
         ArgumentCaptor<UserRole> userCaptor = ArgumentCaptor.forClass(UserRole.class);
         Mockito.verify(userRoleDao).persist(userCaptor.capture(), Mockito.eq(em));
 
         UserRole savedUserRole = userCaptor.getValue();
+        // assertSame checks object identity; assertEquals checks equality.
         Assertions.assertSame(targetUser, savedUserRole.getUser());
         Assertions.assertEquals(Role.ADMIN, savedUserRole.getRole());
 
+        // Verify that the acting user's required role was checked.
         Mockito.verify(authorizationService).requireRole(adminId, Role.ADMIN);
     }
 
