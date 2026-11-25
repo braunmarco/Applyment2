@@ -73,6 +73,13 @@ public class UserService implements IUserService {
         this.em = em;
     }
 
+    // Required for CDI client proxy creation.
+    /*protected UserService() {
+        this.userDao = null;
+        this.userRoleDao = null;
+        this.authorizationService = null;
+    }*/
+
     @Inject
     public UserService(UserDao userDao, UserRoleDao userRoleDao, AuthorizationService authorizationService) {
         this.userDao = userDao;

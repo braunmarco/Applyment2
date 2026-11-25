@@ -1,5 +1,6 @@
 package my.cvmanager.repositories;
 
+import jakarta.enterprise.context.ApplicationScoped;
 import my.cvmanager.domain.User;
 
 /**
@@ -10,6 +11,7 @@ import my.cvmanager.domain.User;
  * @see BaseDao
  * @see User
  */
+@ApplicationScoped
 public class UserDao extends BaseDao<User> {
 
     /**

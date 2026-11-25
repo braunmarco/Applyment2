@@ -5,6 +5,7 @@ import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import my.cvmanager.service.IUserService;
 import my.cvmanager.service.UserService;
 import my.cvmanager.service.exception.UserNotFoundException;
 
@@ -28,7 +29,7 @@ public class PasswordResetBean implements Serializable {
     private String confirmPassword;
 
     @Inject
-    private UserService userService;
+    private IUserService userService;
 
     /**
      * Initializes the bean when the view is first loaded.

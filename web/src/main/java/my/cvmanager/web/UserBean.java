@@ -8,7 +8,7 @@ import jakarta.inject.Named;
 import jakarta.security.enterprise.AuthenticationException;
 import jakarta.validation.ValidationException;
 import my.cvmanager.domain.User;
-import my.cvmanager.service.UserService;
+import my.cvmanager.service.IUserService;
 
 import java.io.Serializable;
 import java.util.logging.Logger;
@@ -31,7 +31,7 @@ public class UserBean implements Serializable {
     private User loggedInUser;
 
     @Inject
-    private UserService userService;
+    private IUserService userService;
 
     private String confirmPassword;
 

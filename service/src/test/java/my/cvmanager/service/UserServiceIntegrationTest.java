@@ -23,7 +23,7 @@ public class UserServiceIntegrationTest {
     private static final String TEST_USERNAME = "testUser";
     private static final String TEST_PWD_1234 = "testPwd1234!";
     private static final String TEST_USER_MAIL = "testUser@example.com";
-    private static final LocalDateTime TEST_NOW = LocalDateTime.of(2026, 10, 14, 12, 0);
+    private static final LocalDateTime TEST_NOW = LocalDateTime.now();//LocalDateTime.of(2026, 10, 14, 12, 0);
     private EntityManagerFactory emf;
     private EntityManager em;
     private UserService userService;
@@ -201,5 +201,4 @@ public class UserServiceIntegrationTest {
             throw e;
         }
     }
-
 }

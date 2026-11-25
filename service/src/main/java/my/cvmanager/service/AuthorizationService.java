@@ -23,6 +23,13 @@ public class AuthorizationService {
     }
 
     /**
+     * Required for CDI client proxy creation.
+     */
+    protected AuthorizationService() {
+        this.userRoleDao = null;
+    }
+
+    /**
      * Sets the entity manager instance for this class.
      * This method is used for testing purposes to inject a mock entity manager.
      *

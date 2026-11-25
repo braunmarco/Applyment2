@@ -4,7 +4,7 @@ import my.cvmanager.domain.User;
 
 public interface IUserService {
     User register(String username, String password, String email);
-    
+
     User login(String username, String password);
 
     void logout(Long userId);
@@ -14,4 +14,8 @@ public interface IUserService {
     void sendCredentials(String email);
 
     User isUserRegistered(String username, String email);
+
+    void deleteUser(Long actingUserId, Long targetUserId);
+
+    void resetPassword(String email, String newRawPassword);
 }
